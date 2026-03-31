@@ -73,7 +73,7 @@ export default function Hero({ setHovered }) {
                     onMouseLeave={() => setHovered(false)}
                     style={{
                         fontWeight: 900,
-                        color: "#ffffff",
+                        color: "#5f5f5f",
                         lineHeight: 1.05,
                         userSelect: "none",
                         fontFamily: "'Bebas Neue', sans-serif",

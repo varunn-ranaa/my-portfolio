@@ -89,7 +89,7 @@ export default function Skills({ setHovered }) {
                 overflow: "hidden",
             }}
         >
-            {/* Faint giant BG text */}
+            {/* Faint giant BG text
             <div style={{
                 position: "absolute",
                 bottom: "-2rem",
@@ -103,7 +103,7 @@ export default function Skills({ setHovered }) {
                 pointerEvents: "none",
             }}>
                 SKILLS
-            </div>
+            </div> */}
 
             {/* Top divider line */}
             <div style={{
@@ -117,11 +117,11 @@ export default function Skills({ setHovered }) {
 
             {/* Section label */}
             <div style={{
-                fontSize: "0.75rem",
-                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: "2rem",
+                fontFamily: "'Arial', sans-serif",
                 letterSpacing: "0.3em",
                 color: "#e8d44d",
-                marginBottom: "1.5rem",
+                marginBottom: "1rem",
                 opacity: inView ? 1 : 0,
                 transform: inView ? "translateY(0)" : "translateY(20px)",
                 transition: "opacity 0.6s ease, transform 0.6s ease",

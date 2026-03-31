@@ -215,8 +215,8 @@ export default function App() {
       }}>
         {[
           { label: "About Me", id: "about-me" },
-          { label: "Work", id: "project" },
-          { label: "Skill", id: "tech-stack" },
+          { label: "Work", id: "work" },
+          { label: "Skill", id: "skills" },
           { label: "Contact", id: "contact" },
         ].map(({ label, id }) => (
           <button
