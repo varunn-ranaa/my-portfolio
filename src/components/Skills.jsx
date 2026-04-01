@@ -84,7 +84,7 @@ export default function Skills({ setHovered }) {
             ref={sectionRef}
             style={{
                 background: "#0d0d0d",
-                padding: "6rem 8rem 8rem",
+                padding: "4rem 8rem 8rem",
                 position: "relative",
                 overflow: "hidden",
             }}
@@ -118,10 +118,10 @@ export default function Skills({ setHovered }) {
             {/* Section label */}
             <div style={{
                 fontSize: "2rem",
-                fontFamily: "'Arial', sans-serif",
+                fontFamily: "'Bebas Neue', sans-serif",
                 letterSpacing: "0.3em",
                 color: "#e8d44d",
-                marginBottom: "1rem",
+                marginBottom: "1.5rem",
                 opacity: inView ? 1 : 0,
                 transform: inView ? "translateY(0)" : "translateY(20px)",
                 transition: "opacity 0.6s ease, transform 0.6s ease",
@@ -164,8 +164,8 @@ export default function Skills({ setHovered }) {
                     <div key={group.category}>
                         {/* Category label */}
                         <div style={{
-                            fontSize: "0.65rem",
-                            fontFamily: "'Bebas Neue', sans-serif",
+                            fontSize: "1rem",
+                            fontFamily: "'Noto Sans Linear A', sans-serif",
                             letterSpacing: "0.25em",
                             color: "#e8d44d",
                             marginBottom: "1.2rem",
