@@ -218,7 +218,7 @@ function ProjectCard({ project, index, setHovered }) {
                             onMouseOut={e => e.currentTarget.style.color = "#555"}
                         >
                             <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.1.82-.26.82-.57v-2c-3.34.72-4.04-1.6-4.04-1.6-.55-1.4-1.34-1.77-1.34-1.77-1.08-.74.08-.72.08-.72 1.2.08 1.83 1.23 1.83 1.23 1.07 1.83 2.8 1.3 3.48 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.3.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.28-1.23 3.28-1.23.64 1.66.24 2.88.12 3.18.77.84 1.23 1.92 1.23 3.22 0 4.6-2.8 5.63-5.48 5.92.43.37.82 1.1.82 2.22v3.3c0 .3.2.68.82.56C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z" />
+                                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.1.82-.26.82-.57v-2c-3.34.72-4.04-1.6-4.04-1.6-.55-1.4-1.34-1.77-1.34-1.77-1.08-.74.08-.72.08-.72 1.2.08 1.83 1.23 1.83 1.23 1.07 1.83 2.8 1.3 3.48 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.3.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.28-1.23 3.28-1.23.64 1.66.24 2.88.12 3.18.77.84 1.23 1.92 1.23 3.22 0 4.6-2.8 5.63-5.48 5.92.43.37.82 1.1.82 2.22v3.3c0 .3.2.68.82.56C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
                             </svg>
                             GitHub
                         </a>
@@ -245,9 +245,9 @@ function ProjectCard({ project, index, setHovered }) {
                             onMouseOut={e => e.currentTarget.style.opacity = "1"}
                         >
                             <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                <polyline points="15 3 21 3 21 9" />
-                                <line x1="10" y1="14" x2="21" y2="3" />
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                <polyline points="15 3 21 3 21 9"/>
+                                <line x1="10" y1="14" x2="21" y2="3"/>
                             </svg>
                             Live
                         </a>
@@ -277,7 +277,7 @@ export default function Projects({ setHovered }) {
             ref={sectionRef}
             style={{
                 background: "#0d0d0d",
-                padding: "6rem 8rem 12rem",
+                padding: "6rem 8rem 4rem",
                 position: "relative",
             }}
         >
@@ -285,15 +285,15 @@ export default function Projects({ setHovered }) {
             <div style={{
                 width: inView ? "100%" : "0%",
                 height: "1px",
-                background: "linear-gradient(90deg, #e8d44d, #e8d44d22, transparent)",
-                marginBottom: "4rem",
+                background: "linear-gradient(90deg, #e8d44d, #e8d44d33, transparent)",
+                marginBottom: "3rem",
                 transition: "width 1s cubic-bezier(0.16, 1, 0.3, 1)",
-                transitionDelay: "0s",
             }} />
+
             {/* Section label */}
             <div style={{
-                fontSize: "2rem",
-                fontFamily: "Arial, sans-serif",
+                fontSize: "0.75rem",
+                fontFamily: "'Bebas Neue', sans-serif",
                 letterSpacing: "0.3em",
                 color: "#e8d44d",
                 marginBottom: "1rem",
