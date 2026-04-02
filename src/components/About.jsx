@@ -54,7 +54,7 @@ export default function About({ setHovered }) {
                 top: "6rem",
                 left: "8rem",
                 fontSize: "2rem",
-                fontFamily: "'Roboto', sans-serif",
+                fontFamily: "'Bebas Neue', sans-serif",
                 letterSpacing: "0.3em",
                 color: "#e8d44d",
                 opacity: inView ? 1 : 0,
@@ -90,7 +90,7 @@ export default function About({ setHovered }) {
                 >
                     Hi there! I'm a{" "}
                     <span style={{ color: "#e8d44d" }}>Full Stack Developer</span>
-                    {" "}&amp; CS undergrad based in{" "}
+                    {" "}based in{" "}
                     <span style={{ color: "#e8d44d" }}>Dehradun, India.</span>
                 </p>
 
