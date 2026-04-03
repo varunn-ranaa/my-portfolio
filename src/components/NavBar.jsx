@@ -50,7 +50,7 @@ export default function NavBar({ activeSection, navScrollTo }) {
                             lineHeight: 1,
                         }}
                         onMouseEnter={e => {
-                            if (!isActive) e.currentTarget.style.color = "#ffffff"
+                            if (!isActive) e.currentTarget.style.color = "#e8d44d"
                         }}
                         onMouseLeave={e => {
                             if (!isActive) e.currentTarget.style.color = "#ffffff66"
