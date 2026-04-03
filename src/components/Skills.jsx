@@ -165,7 +165,7 @@ function SkillGroup({ group, gi, inView }) {
             onMouseLeave={() => setHovered(false)}
         >
             <div style={{
-                fontSize: "0.75rem",
+                fontSize: "1.2rem",
                 fontFamily: "'Bebas Neue', sans-serif",
                 letterSpacing: "0.28em",
                 color: "#e8d44d",
