@@ -107,53 +107,86 @@ function LinkedInPopup() {
     )
 }
 
-// Removed LiquidCursor component to avoid duplicate yellow dots
-
-/* ── Circular Image Reveal (fixed, no layout shift) ── */
+/* ── Circular Image Reveal — canvas mask, sharp image, organic edges ── */
 function ImageReveal({ globalMouse, onHoverChange }) {
     const containerRef = useRef(null)
     const overlayRef = useRef(null)
-    const blobCursorRef = useRef(null)
+    const canvasRef = useRef(document.createElement("canvas"))
     const rafRef = useRef(null)
     const mousePos = useRef({ x: -999, y: -999 })
     const currentPos = useRef({ x: -999, y: -999 })
+    const radiusRef = useRef(0)
+    const revealedRef = useRef(false)
     const [isHovering, setIsHovering] = useState(false)
-    const [revealed, setRevealed] = useState(false)
 
-    const LERP = 0.12
-    const CIRCLE_R = 150
+    const LERP = 0.1
+    const CIRCLE_R = 140
 
-    const updateMask = useCallback(() => {
-        if (!overlayRef.current || !containerRef.current) return
-        const rect = containerRef.current.getBoundingClientRect()
+    const loop = useCallback(() => {
+        const container = containerRef.current
+        const overlay = overlayRef.current
+        if (!container || !overlay) { rafRef.current = requestAnimationFrame(loop); return }
+
+        const rect = container.getBoundingClientRect()
+        const W = rect.width, H = rect.height
+
+        const canvas = canvasRef.current
+        if (canvas.width !== W) canvas.width = W
+        if (canvas.height !== H) canvas.height = H
 
         currentPos.current.x += (mousePos.current.x - currentPos.current.x) * LERP
         currentPos.current.y += (mousePos.current.y - currentPos.current.y) * LERP
-
         const rx = currentPos.current.x - rect.left
         const ry = currentPos.current.y - rect.top
 
-        const r = revealed ? CIRCLE_R : 0
+        const target = revealedRef.current ? CIRCLE_R : 0
+        radiusRef.current += (target - radiusRef.current) * 0.1
+        const r = radiusRef.current
 
-        // Overlay image mask — liquid-shaped via border-radius animation
-        overlayRef.current.style.maskImage =
-            `radial-gradient(circle ${r}px at ${rx}px ${ry}px, black 55%, transparent 100%)`
-        overlayRef.current.style.webkitMaskImage =
-            `radial-gradient(circle ${r}px at ${rx}px ${ry}px, black 55%, transparent 100%)`
+        const ctx = canvas.getContext("2d")
+        ctx.clearRect(0, 0, W, H)
 
-        // Move the blob cursor div to follow mouse
-        if (blobCursorRef.current) {
-            blobCursorRef.current.style.left = `${rx - CIRCLE_R}px`
-            blobCursorRef.current.style.top = `${ry - CIRCLE_R}px`
+        if (r > 0.5) {
+            const t = Date.now() / 1000
+            const pts = 80
+            ctx.beginPath()
+            for (let i = 0; i <= pts; i++) {
+                const a = (i / pts) * Math.PI * 2
+                const wobble =
+                    Math.sin(a * 3 + t * 1.2) * 13 +
+                    Math.sin(a * 5 - t * 0.8) * 7 +
+                    Math.sin(a * 8 + t * 1.5) * 4 +
+                    Math.sin(a * 2 - t * 0.4) * 9
+                const rad = r + wobble
+                const x = rx + Math.cos(a) * rad
+                const y = ry + Math.sin(a) * rad
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+            }
+            ctx.closePath()
+
+            const grad = ctx.createRadialGradient(rx, ry, r * 0.5, rx, ry, r * 1.2)
+            grad.addColorStop(0,   "rgba(0,0,0,1)")
+            grad.addColorStop(0.7, "rgba(0,0,0,0.95)")
+            grad.addColorStop(1,   "rgba(0,0,0,0)")
+            ctx.fillStyle = grad
+            ctx.fill()
         }
 
-        rafRef.current = requestAnimationFrame(updateMask)
-    }, [revealed])
+        const url = canvas.toDataURL()
+        overlay.style.maskImage = `url(${url})`
+        overlay.style.webkitMaskImage = `url(${url})`
+        overlay.style.maskSize = `${W}px ${H}px`
+        overlay.style.maskRepeat = "no-repeat"
+        overlay.style.webkitMaskSize = `${W}px ${H}px`
+        overlay.style.webkitMaskRepeat = "no-repeat"
+
+        rafRef.current = requestAnimationFrame(loop)
+    }, [])
 
     useEffect(() => {
-        rafRef.current = requestAnimationFrame(updateMask)
+        rafRef.current = requestAnimationFrame(loop)
         return () => cancelAnimationFrame(rafRef.current)
-    }, [updateMask])
+    }, [loop])
 
     const handleMouseMove = useCallback((e) => {
         mousePos.current = { x: e.clientX, y: e.clientY }
@@ -164,30 +197,20 @@ function ImageReveal({ globalMouse, onHoverChange }) {
         mousePos.current = { x: e.clientX, y: e.clientY }
         currentPos.current = { x: e.clientX, y: e.clientY }
         if (globalMouse) globalMouse.current = { x: e.clientX, y: e.clientY }
+        revealedRef.current = true
         setIsHovering(true)
-        setRevealed(true)
+        onHoverChange && onHoverChange(true)
         document.body.classList.add("hide-cursor-ball")
-    }, [globalMouse])
+    }, [globalMouse, onHoverChange])
 
     const handleMouseLeave = useCallback(() => {
+        revealedRef.current = false
         setIsHovering(false)
-        setRevealed(false)
+        onHoverChange && onHoverChange(false)
         document.body.classList.remove("hide-cursor-ball")
-    }, [])
+    }, [onHoverChange])
 
     return (
-        /*
-         * FIX 1 — RIGHT IMAGE SHIFT:
-         * flex-shrink:0  +  explicit width/height via aspectRatio keep this
-         * column's size 100% independent of the left text column.
-         * alignSelf:"flex-start" also removes any implicit stretch that could
-         * cause micro-shifts.
-         *
-         * FIX 2 — NAVBAR OVERLAP:
-         * zIndex is intentionally lower than the navbar (assume navbar z ≥ 50).
-         * pointerEvents on the container are "auto" only inside; the image
-         * never bleeds above the hero section boundary.
-         */
         <div
             ref={containerRef}
             onMouseMove={handleMouseMove}
@@ -195,25 +218,21 @@ function ImageReveal({ globalMouse, onHoverChange }) {
             onMouseLeave={handleMouseLeave}
             style={{
                 position: "relative",
-                /* Fixed intrinsic size — never influenced by sibling text */
-                width: "100%",        // fills the grid column
-                aspectRatio: "3/4",
+                width: "100%",
+                aspectRatio: "3/5",
+                maxHeight: "calc(68vh + 5rem)",
                 flexShrink: 0,
                 flexGrow: 0,
-                /* Right margin so image doesn't touch the viewport edge */
                 marginRight: "1.5rem",
-                transform: "translateX(-2.5rem)", /* Safely pull the image slightly left */
-                /* Contain everything; cursor:none hides system cursor on hover */
+                transform: "translateX(-3rem)",
                 borderRadius: "20px",
                 overflow: "hidden",
-                cursor: isHovering ? "none" : "auto",
+                cursor: "none",
                 boxShadow: "0 0 0 1px #2a2a2a, 0 32px 80px rgba(0,0,0,0.8)",
-                /* isolate stacking context so zIndex is local */
                 isolation: "isolate",
                 zIndex: 1,
             }}
         >
-            {/* BASE image — always visible, background matches site bg (#0d0d0d) */}
             <img
                 src="/base.png"
                 alt="Base"
@@ -230,7 +249,6 @@ function ImageReveal({ globalMouse, onHoverChange }) {
                 }}
             />
 
-            {/* OVERLAY image — circular liquid mask following cursor */}
             <img
                 ref={overlayRef}
                 src="/above.png"
@@ -242,73 +260,33 @@ function ImageReveal({ globalMouse, onHoverChange }) {
                     objectFit: "cover",
                     userSelect: "none",
                     display: "block",
-                    maskImage: "radial-gradient(circle 0px at 55% 55%, black 55%, transparent 100%)",
-                    WebkitMaskImage: "radial-gradient(circle 0px at 50% 50%, black 55%, transparent 100%)",
                     willChange: "mask-image, transform",
                     transform: isHovering ? "scale(1.04)" : "scale(1)",
                     transition: "transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
             />
-
-            {/*
-             * FIX 3 — LIQUID BLOB BOUNDARY (no yellow ring, just the morphing
-             * border-shape of the reveal circle itself gives the "waving" feel).
-             * We draw a translucent animated div on top that uses border-radius
-             * animation to look liquid.  It is purely decorative and has
-             * pointerEvents:none so it never interferes with mouse tracking.
-             */}
-            {isHovering && (
-                <div
-                    ref={blobCursorRef}
-                    style={{
-                        position: "absolute",
-                        width: CIRCLE_R * 2,
-                        height: CIRCLE_R * 2,
-                        pointerEvents: "none",
-                        mixBlendMode: "overlay",
-                        /* subtle inner glow — NO yellow border */
-                        background: "radial-gradient(circle, rgba(232,212,77,0.10) 0%, transparent 70%)",
-                        animation: "liquidWave 2.2s ease-in-out infinite",
-                        willChange: "border-radius, left, top",
-                    }}
-                />
-            )}
-
-            <style>{`
-                @keyframes liquidWave {
-                    0%   { border-radius: 60% 40% 55% 45% / 45% 55% 45% 55%; }
-                    20%  { border-radius: 50% 50% 40% 60% / 60% 40% 60% 40%; }
-                    40%  { border-radius: 40% 60% 50% 50% / 50% 50% 40% 60%; }
-                    60%  { border-radius: 55% 45% 60% 40% / 40% 60% 55% 45%; }
-                    80%  { border-radius: 45% 55% 45% 55% / 55% 45% 50% 50%; }
-                    100% { border-radius: 60% 40% 55% 45% / 45% 55% 45% 55%; }
-                }
-            `}</style>
         </div>
     )
 }
 
 /* ── Main Hero ── */
-export default function Hero({ setHovered, currentYRef }) {
+export default function Hero({ setHovered, setIsOverImage, currentYRef }) {
     const [displayed, setDisplayed] = useState("")
     const [wordIndex, setWordIndex] = useState(0)
     const [charIndex, setCharIndex] = useState(0)
     const [deleting, setDeleting] = useState(false)
     const [ghHover, setGhHover] = useState(false)
     const [liHover, setLiHover] = useState(false)
-    const [isOverImage, setIsOverImage] = useState(false)
     const globalMouse = useRef({ x: -999, y: -999 })
     const heyTextRef = useRef(null)
     const varunTextRef = useRef(null)
 
-    /* Track global mouse for the custom cursor dot */
     useEffect(() => {
         const move = (e) => { globalMouse.current = { x: e.clientX, y: e.clientY } }
         window.addEventListener("mousemove", move, { passive: true })
         return () => window.removeEventListener("mousemove", move)
     }, [])
 
-    /* Scroll-driven color animation */
     useEffect(() => {
         if (!currentYRef) return
         let animId
@@ -335,7 +313,6 @@ export default function Hero({ setHovered, currentYRef }) {
         return () => cancelAnimationFrame(animId)
     }, [currentYRef])
 
-    /* Typing animation — unchanged */
     useEffect(() => {
         const currentWord = words[wordIndex]
         if (!deleting && charIndex <= currentWord.length) {
@@ -364,16 +341,11 @@ export default function Hero({ setHovered, currentYRef }) {
             position: "relative",
             overflow: "hidden",
             cursor: "none",
-            paddingTop: "80px", /* safe space for navbar */
+            paddingTop: "80px",
             boxSizing: "border-box",
         }}>
 
-            {/* Using the global App.jsx cursor, no local LiquidCursor here. */}
-
-            {/* LEFT — Social Icons
-                FIX 2: zIndex:50 ensures it sits above the image (zIndex:1) but
-                the pointer-events on the image are contained inside its own
-                overflow:hidden box, so no overlap issue.                      */}
+            {/* LEFT — Social Icons */}
             <div style={{
                 position: "absolute", left: "2.8rem", top: "40px",
                 display: "flex", flexDirection: "column",
@@ -381,8 +353,6 @@ export default function Hero({ setHovered, currentYRef }) {
                 zIndex: 50,
             }}>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2rem" }}>
-
-                    {/* GitHub */}
                     <div style={{ position: "relative" }}
                         onMouseEnter={() => setGhHover(true)}
                         onMouseLeave={() => setGhHover(false)}
@@ -396,7 +366,6 @@ export default function Hero({ setHovered, currentYRef }) {
                         {ghHover && <GitHubPopup />}
                     </div>
 
-                    {/* LinkedIn */}
                     <div style={{ position: "relative" }}
                         onMouseEnter={() => setLiHover(true)}
                         onMouseLeave={() => setLiHover(false)}
@@ -409,16 +378,10 @@ export default function Hero({ setHovered, currentYRef }) {
                         </a>
                         {liHover && <LinkedInPopup />}
                     </div>
-
                 </div>
             </div>
 
-            {/*
-             * MAIN CONTENT — full-width grid pinned to viewport edges.
-             * Left col: text (social icons offset accounted for with padding-left).
-             * Right col: image flush to the right edge with a small margin gap.
-             * No maxWidth cap so the image truly reaches the right end.
-             */}
+            {/* MAIN CONTENT */}
             <div style={{
                 display: "grid",
                 gridTemplateColumns: "1fr clamp(260px, 31vw, 430px)",
@@ -427,12 +390,9 @@ export default function Hero({ setHovered, currentYRef }) {
                 width: "100%",
                 maxWidth: "1600px",
                 margin: "0 auto",
-                /* Left padding adjusted to pull text slightly back to the left */
                 padding: "0 1rem 0 clamp(10rem, 16vw, 22rem)",
                 boxSizing: "border-box",
             }}>
-
-                {/* LEFT — Text, clipped so it never bleeds into image column */}
                 <div style={{
                     display: "flex", flexDirection: "column",
                     alignItems: "flex-start", justifyContent: "center",
@@ -483,14 +443,13 @@ export default function Hero({ setHovered, currentYRef }) {
                     </div>
                 </div>
 
-                {/* RIGHT — Image */}
                 <ImageReveal
                     globalMouse={globalMouse}
                     onHoverChange={(hovering) => {
-                        setIsOverImage(hovering)
+                        setIsOverImage && setIsOverImage(hovering)
+                        setHovered && setHovered(!hovering)
                     }}
                 />
-
             </div>
         </div>
     )
