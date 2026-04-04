@@ -4,7 +4,7 @@ const NAV_ITEMS = [
     { label: "About", id: "about-me" },
     { label: "Work", id: "work" },
     { label: "Skills", id: "skills" },
-    { label: "Contact", id: "contact" },
+    { label: "Connect", id: "contact" },
 ]
 
 const SECTION_TO_NAV = {
@@ -22,7 +22,7 @@ export default function NavBar({ activeSection, navScrollTo }) {
             position: "fixed",
             top: "25px",
             left: "clamp(40%, 45%, 45%)", /* Centered with a bias to the left */
-            transform: "translateX(-60%)", /* Pull it slightly left of its center */
+            transform: "translateX(-40%)", /* Pull it slightly left of its center */
             display: "flex",
             alignItems: "center",
             gap: "2.5rem",
