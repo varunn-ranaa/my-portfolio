@@ -91,6 +91,7 @@ function useSmoothScroll(currentYRef) {
 
 export default function App() {
   const [hovered, setHovered] = useState(false)
+  const [isOverImage, setIsOverImage] = useState(false)
   const [activeSection, setActiveSection] = useState("hero")
 
   const ballDomRef = useRef(null)
@@ -264,8 +265,9 @@ export default function App() {
           pointerEvents: "none",
           zIndex: 9999,
           transition:
-            "width 0.4s cubic-bezier(0.34,1.56,0.64,1), height 0.4s cubic-bezier(0.34,1.56,0.64,1)",
+            "width 0.4s cubic-bezier(0.34,1.56,0.64,1), height 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease",
           mixBlendMode: "difference",
+          opacity: isOverImage ? 0 : 1,
         }}
       />
 
@@ -273,7 +275,7 @@ export default function App() {
 
       <div id="__smooth_root__">
         <div ref={heroWrap} style={{ position: "relative", background: "#0d0d0d" }}>
-          <Hero setHovered={setHovered} currentYRef={currentYRef} />
+          <Hero setHovered={setHovered} setIsOverImage={setIsOverImage} currentYRef={currentYRef} />
         </div>
 
         <div ref={aboutWrap} style={{ position: "relative", background: "#0d0d0d", willChange: "transform, opacity" }}>
