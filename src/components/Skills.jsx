@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useMemo } from "react"
+import useScrollDim from "../hooks/useScrollDim"
 
 const skillGroups = [
     { category: "Frontend", items: ["React", "HTML", "CSS", "JavaScript"] },
-    { category: "Backend", items: ["Node.js", "Express", "REST APIs", "MongoDB","PostgreSQl", "WebRTC"] },
+    { category: "Backend", items: ["Node.js", "Express", "REST APIs", "MongoDB", "PostgreSQl", "WebRTC"] },
     { category: "AI / ML", items: ["Python", "scikit-learn", "NumPy", "Pandas"] },
-    { category: "Tools", items: ["Git", "GitHub", "VS Code", "Postman","Docker"] },
+    { category: "Tools", items: ["Git", "GitHub", "VS Code", "Postman", "Docker"] },
 ]
 
 function useInView(threshold = 0.1) {
@@ -106,8 +107,8 @@ function SkillPill({ name, delay, inView }) {
                     <defs>
                         <linearGradient id={gradId} gradientUnits="userSpaceOnUse"
                             x1="0" y1="0" x2={w} y2="0">
-                            <stop offset="0%"   stopColor="#e8d44d" stopOpacity="1" />
-                            <stop offset="55%"  stopColor="#e8d44d" stopOpacity="0.4" />
+                            <stop offset="0%" stopColor="#e8d44d" stopOpacity="1" />
+                            <stop offset="55%" stopColor="#e8d44d" stopOpacity="0.4" />
                             <stop offset="100%" stopColor="#e8d44d" stopOpacity="0" />
                         </linearGradient>
                     </defs>
@@ -136,7 +137,7 @@ function SkillPill({ name, delay, inView }) {
             {/* Dot indicator */}
             <span style={{
                 flexShrink: 0,
-                width:  hovered ? "7px" : "5px",
+                width: hovered ? "7px" : "5px",
                 height: hovered ? "7px" : "5px",
                 borderRadius: "50%",
                 background: hovered ? "#e8d44d" : "#555",
@@ -156,15 +157,23 @@ function SkillPill({ name, delay, inView }) {
     )
 }
 
-function SkillGroup({ group, gi, inView }) {
+function SkillGroup({ group, gi, inView, currentYRef }) {
     const [hovered, setHovered] = useState(false)
+    const catRef = useRef(null)
+
+    const dimTargets = useMemo(() => [
+        { ref: catRef, type: "yellow" }
+    ], [])
+    useScrollDim(dimTargets, currentYRef)
 
     return (
         <div
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
-            <div style={{
+            <div 
+                ref={catRef}
+                style={{
                 fontSize: "1.2rem",
                 fontFamily: "'Bebas Neue', sans-serif",
                 letterSpacing: "0.28em",
@@ -199,8 +208,16 @@ function SkillGroup({ group, gi, inView }) {
     )
 }
 
-export default function Skills({ setHovered }) {
+export default function Skills({ setHovered, currentYRef }) {
     const [ref, inView] = useInView(0.1)
+    const labelRef = useRef(null)
+    const headerRef = useRef(null)
+
+    const dimTargets = useMemo(() => [
+        { ref: labelRef, type: "yellow" },
+        { ref: headerRef, type: "heading" },
+    ], [])
+    useScrollDim(dimTargets, currentYRef)
 
     return (
         <section
@@ -208,7 +225,7 @@ export default function Skills({ setHovered }) {
             ref={ref}
             style={{
                 background: "#0d0d0d",
-                padding: "5rem 8rem",
+                padding: "4rem 8rem",
             }}
         >
             <div style={{
@@ -219,20 +236,23 @@ export default function Skills({ setHovered }) {
                 transition: "width 1.2s cubic-bezier(0.16,1,0.3,1)",
             }} />
 
-            <div style={{
-                fontSize: "2rem",
-                fontFamily: "'Bebas Neue', sans-serif",
-                letterSpacing: "0.3em",
+            <div 
+                ref={labelRef}
+                style={{
+                    fontSize: "2rem",
+                    fontFamily: "'Bebas Neue', sans-serif",
+                    letterSpacing: "0.3em",
                 color: "#e8d44d",
                 marginBottom: "1.5rem",
                 opacity: inView ? 1 : 0,
-                transform: inView ? "translateY(0)" : "translateY(16px)",
-                transition: "opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s",
+                transform: inView ? "translateY(0)" : "translateY(20px)",
+                transition: "opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)",
             }}>
                 SKILLS
             </div>
 
             <h2
+                ref={headerRef}
                 onMouseEnter={() => setHovered && setHovered(true)}
                 onMouseLeave={() => setHovered && setHovered(false)}
                 style={{
@@ -263,6 +283,7 @@ export default function Skills({ setHovered }) {
                         group={group}
                         gi={gi}
                         inView={inView}
+                        currentYRef={currentYRef}
                     />
                 ))}
             </div>

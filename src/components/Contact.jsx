@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useMemo } from "react"
+import useScrollDim from "../hooks/useScrollDim"
 
 function useInView(threshold = 0.1) {
     const ref = useRef(null)
@@ -14,8 +15,25 @@ function useInView(threshold = 0.1) {
     return [ref, inView]
 }
 
-export default function Contact({ setHovered }) {
+export default function Contact({ setHovered, currentYRef }) {
     const [sectionRef, inView] = useInView(0.1)
+    const labelRef = useRef(null)
+    const headerRef = useRef(null)
+    const hlRef = useRef(null)
+    const iconRefs = useRef([])
+
+    const dimTargets = useMemo(() => {
+        const targets = [
+            { ref: labelRef, type: "yellow" },
+            { ref: headerRef, type: "heading" },
+            { ref: hlRef, type: "yellow" }
+        ]
+        iconRefs.current.forEach(iconRef => {
+            if (iconRef) targets.push({ ref: { current: iconRef }, type: "yellow" })
+        })
+        return targets
+    }, [])
+    useScrollDim(dimTargets, currentYRef)
 
 
     return (
@@ -27,7 +45,7 @@ export default function Contact({ setHovered }) {
                 minHeight: "100vh",
                 display: "flex",
                 alignItems: "center",
-                padding: "6rem 8rem",
+                padding: "4rem 8rem",
                 position: "relative",
                 overflow: "hidden",
             }}
@@ -118,26 +136,29 @@ export default function Contact({ setHovered }) {
                 {/* RIGHT — Info */}
                 <div>
                     {/* Label */}
-                    <div style={{
-                        fontSize: "2rem",
-                        fontFamily: "'Bebas Neue', sans-serif",
-                        letterSpacing: "0.3em",
+                    <div 
+                        ref={labelRef}
+                        style={{
+                            fontSize: "2rem",
+                            fontFamily: "'Bebas Neue', sans-serif",
+                            letterSpacing: "0.3em",
                         color: "#e8d44d",
                         marginBottom: "1.5rem",
                         opacity: inView ? 1 : 0,
                         transition: "opacity 0.6s ease",
                         transitionDelay: "0.2s",
                     }}>
-                        Connect
+                        CONNECT
                     </div>
 
                     {/* Big heading */}
                     <h2
+                        ref={headerRef}
                         onMouseEnter={() => setHovered(true)}
                         onMouseLeave={() => setHovered(false)}
                         style={{
                             fontFamily: "'Bebas Neue', sans-serif",
-                            fontSize: "clamp(2.5rem, 5vw, 4.5rem)",
+                            fontSize: "clamp(3rem, 6vw, 4.5rem)",
                             color: "#3a3a3a",
                             letterSpacing: "0.06em",
                             lineHeight: 1.05,
@@ -151,7 +172,7 @@ export default function Contact({ setHovered }) {
                         }}
                     >
                         LET'S BUILD<br />
-                        <span style={{ color: "#e8d44d" }}>SOMETHING</span>
+                        <span ref={hlRef} style={{ color: "#e8d44d" }}>SOMETHING</span>
                     </h2>
 
                     <p style={{
@@ -208,7 +229,7 @@ export default function Contact({ setHovered }) {
                                 label: "linkedin.com/in/varun-rana",
                                 href: "https://in.linkedin.com/in/varun-rana-6a7560324",
                             },
-                        ].map(({ icon, label, href }) => (
+                        ].map(({ icon, label, href }, index) => (
                             <a
                                 key={label}
                                 href={href}
@@ -231,7 +252,7 @@ export default function Contact({ setHovered }) {
                                 onMouseEnter={e => e.currentTarget.style.color = "#e8d44d"}
                                 onMouseLeave={e => e.currentTarget.style.color = "#444"}
                             >
-                                <span style={{ color: "#e8d44d", flexShrink: 0 }}>{icon}</span>
+                                <span ref={el => iconRefs.current[index] = el} style={{ color: "#e8d44d", flexShrink: 0 }}>{icon}</span>
                                 {label}
                             </a>
                         ))}

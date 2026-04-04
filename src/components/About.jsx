@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useMemo } from "react"
+import useScrollDim from "../hooks/useScrollDim"
 
 function useInView(threshold = 0.2) {
     const ref = useRef(null)
@@ -18,8 +19,24 @@ function useInView(threshold = 0.2) {
     return [ref, inView]
 }
 
-export default function About({ setHovered }) {
+export default function About({ setHovered, currentYRef }) {
     const [sectionRef, inView] = useInView(0.1)
+    const labelRef = useRef(null)
+    const headerRef = useRef(null)
+    const hl1Ref = useRef(null)
+    const hl2Ref = useRef(null)
+    const eduLabelRef = useRef(null)
+    const gradYearRef = useRef(null)
+
+    const dimTargets = useMemo(() => [
+        { ref: labelRef, type: "yellow" },
+        { ref: headerRef, type: "heading" },
+        { ref: hl1Ref, type: "yellow" },
+        { ref: hl2Ref, type: "yellow" },
+        { ref: eduLabelRef, type: "yellow" },
+        { ref: gradYearRef, type: "yellow" },
+    ], [])
+    useScrollDim(dimTargets, currentYRef)
 
     return (
         <section
@@ -49,13 +66,15 @@ export default function About({ setHovered }) {
             }} />
 
             {/* ABOUT ME label */}
-            <div style={{
-                position: "absolute",
-                top: "6rem",
-                left: "8rem",
-                fontSize: "2rem",
-                fontFamily: "'Bebas Neue', sans-serif",
-                letterSpacing: "0.3em",
+            <div 
+                ref={labelRef}
+                style={{
+                    position: "absolute",
+                    top: "6rem",
+                    left: "8rem",
+                    fontSize: "2rem",
+                    fontFamily: "'Bebas Neue', sans-serif",
+                    letterSpacing: "0.3em",
                 color: "#e8d44d",
                 opacity: inView ? 1 : 0,
                 transform: inView ? "translateY(0)" : "translateY(20px)",
@@ -69,6 +88,7 @@ export default function About({ setHovered }) {
 
                 {/* Big text */}
                 <p
+                    ref={headerRef}
                     onMouseEnter={() => setHovered(true)}
                     onMouseLeave={() => setHovered(false)}
                     style={{
@@ -89,9 +109,9 @@ export default function About({ setHovered }) {
                     }}
                 >
                     Hi there! I'm a{" "}
-                    <span style={{ color: "#e8d44d" }}>Full Stack Developer</span>
+                    <span ref={hl1Ref} style={{ color: "#e8d44d" }}>Full Stack Developer</span>
                     {" "}based in{" "}
-                    <span style={{ color: "#e8d44d" }}>Dehradun, India.</span>
+                    <span ref={hl2Ref} style={{ color: "#e8d44d" }}>Dehradun, India.</span>
                 </p>
 
                 {/* Bio text */}
@@ -122,13 +142,16 @@ export default function About({ setHovered }) {
                     transition: "opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)",
                     transitionDelay: "0.65s",
                 }}>
-                    <div style={{
-                        fontSize: "1rem",
-                        fontFamily: "'Roboto', sans-serif",
-                        letterSpacing: "0.3em",
-                        color: "#e8d44d",
-                        marginBottom: "1rem",
-                    }}>
+                    <div 
+                        ref={eduLabelRef}
+                        style={{
+                            fontSize: "1rem",
+                            fontFamily: "'Roboto', sans-serif",
+                            letterSpacing: "0.3em",
+                            color: "#e8d44d",
+                            marginBottom: "1rem",
+                        }}
+                    >
                         EDUCATION
                     </div>
 
@@ -194,7 +217,7 @@ export default function About({ setHovered }) {
 
                         <div style={{ textAlign: "right", fontFamily: "'Arial', sans-serif" }}>
                             <div style={{ fontSize: "0.6rem", color: "#555", letterSpacing: "0.2em", marginBottom: "2px" }}>GRAD</div>
-                            <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#e8d44d", letterSpacing: "0.05em" }}>'27</div>
+                            <div ref={gradYearRef} style={{ fontSize: "1.1rem", fontWeight: 700, color: "#e8d44d", letterSpacing: "0.05em" }}>'27</div>
                             <div style={{ marginTop: "1.2rem", display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
                                 {["MERN STACK", "AI / ML"].map((label) => (
                                     <div key={label} style={{

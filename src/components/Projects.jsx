@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useMemo } from "react"
+import useScrollDim from "../hooks/useScrollDim"
 
 const projects = [
     {
@@ -39,24 +40,56 @@ const projects = [
     },
 ]
 
-function ProjectCard({ project, index, setHovered }) {
-    const cardRef = useRef(null)
-    const [progress, setProgress] = useState(0)
+function ProjectCard({ project, index, total, setHovered, sectionRef }) {
+    const trackerRef = useRef(null)
+    const stickyContainerRef = useRef(null)
 
     useEffect(() => {
-        const card = cardRef.current
-        if (!card) return
+        const tracker = trackerRef.current
+        const container = stickyContainerRef.current
+        if (!tracker || !container) return
+
+        const cardContent = container.firstElementChild
 
         const onScroll = () => {
-            const rect = card.getBoundingClientRect()
+            const rect = tracker.getBoundingClientRect()
+            const stickyTop = 100 + index * 32 // Stacking offset
+
+            // How far the user has scrolled past the point where the card pinned
+            const scrollPastSticky = stickyTop - rect.top
+            
+            // Clamp it dynamically so the card is pushed up gracefully when the entire section ends!
+            const sectionRect = sectionRef?.current?.getBoundingClientRect()
+            let maxTransformY = Infinity
+            if (sectionRect) {
+                const vh = window.innerHeight
+                // Subtract the 40vh padding buffer we added to the section end. 
+                // This ensures the cards gracefully unlock and scroll out BEFORE traversing the empty gap!
+                maxTransformY = sectionRect.bottom - rect.top - container.offsetHeight - (vh * 0.4)
+            }
+
+            let transformY = 0
+            if (scrollPastSticky > 0) {
+                // translate it downwards but stop when it hits the section's true bottom bound
+                transformY = Math.max(0, Math.min(scrollPastSticky, maxTransformY))
+            }
+            container.style.transform = `translateY(${transformY}px)`
+
+            // Automatically handle scale and darkness
             const vh = window.innerHeight
-            // how far card has scrolled past top
-            const p = Math.max(0, Math.min(1, (vh - rect.top) / vh))
-            setProgress(p)
+            const p = Math.max(0, scrollPastSticky / (vh * 0.55))
+            
+            const scale = 1 - Math.min(p, 1) * 0.05
+            const brightness = 1 - Math.min(p, 1) * 0.4
+
+            if (cardContent) {
+                cardContent.style.transform = `scale(${scale})`
+                cardContent.style.filter = `brightness(${brightness})`
+            }
         }
 
         window.addEventListener("scroll", onScroll, { passive: true })
-        // also listen to our custom smooth scroll
+        // Also listen continuously for custom smooth-scroll engines via rAF 
         const raf = requestAnimationFrame(function loop() {
             onScroll()
             requestAnimationFrame(loop)
@@ -65,45 +98,44 @@ function ProjectCard({ project, index, setHovered }) {
             window.removeEventListener("scroll", onScroll)
             cancelAnimationFrame(raf)
         }
-    }, [])
-
-    // Scale down slightly as next card overlaps
-    const scale = 1 - Math.max(0, progress - 0.7) * 0.08
-    const opacity = 1 - Math.max(0, progress - 0.85) * 3
+    }, [index])
 
     return (
-        <div
-            ref={cardRef}
-            style={{
-                position: "sticky",
-                top: `${80 + index * 24}px`,
-                zIndex: 10 + index,
-                marginBottom: "2px",
-            }}
-        >
-            <div
-                onMouseEnter={() => setHovered(false)}
-                onMouseLeave={() => setHovered(false)}
+        <>
+            {/* 1. Invisible tracking element purely for scroll math */}
+            <div ref={trackerRef} style={{ height: 0, margin: 0, padding: 0 }} />
+
+            {/* 2. The sticky card */}
+            <div 
+                ref={stickyContainerRef}
                 style={{
-                    transform: `scale(${scale})`,
-                    opacity: Math.max(0.2, opacity),
-                    transformOrigin: "top center",
-                    transition: "transform 0.05s linear",
-                    background: "#0f0f0f",
-                    border: "1px solid #1e1e1e",
-                    borderTop: `2px solid ${project.accent}`,
-                    borderRadius: "16px",
-                    padding: "2.5rem 2.8rem",
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "2rem",
-                    maxWidth: "860px",
-                    boxShadow: "0 30px 80px rgba(0,0,0,0.6)",
-                    backdropFilter: "blur(2px)",
-                    cursor: "none",
+                    position: "relative",
+                    zIndex: 10 + index,
+                    willChange: "transform",
                 }}
             >
-                {/* LEFT */}
+                <div
+                    onMouseEnter={() => setHovered(false)}
+                    onMouseLeave={() => setHovered(false)}
+                    style={{
+                        transformOrigin: "top center",
+                        willChange: "transform, filter",
+                        background: "#0f0f0f",
+                        border: "1px solid #1e1e1e",
+                        borderTop: `2px solid ${project.accent}`,
+                        borderRadius: "16px",
+                        padding: "2.5rem 2.8rem",
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "2rem",
+                        maxWidth: "860px",
+                        boxShadow: "0 -20px 60px rgba(0,0,0,0.5)",
+                        backdropFilter: "blur(2px)",
+                        cursor: "none",
+                        margin: "0 auto", // Keep it centered
+                    }}
+                >
+                    {/* LEFT */}
                 <div>
                     {/* number + tag row */}
                     <div style={{
@@ -253,22 +285,54 @@ function ProjectCard({ project, index, setHovered }) {
                         </a>
                     </div>
                 </div>
+                </div>
             </div>
-        </div>
+
+            {/* 3. The spacer creates reading distance before the next card. Last item needs less. */}
+            <div style={{ height: index === total - 1 ? "10vh" : "60vh" }} />
+        </>
     )
 }
 
-export default function Projects({ setHovered }) {
+export default function Projects({ setHovered, currentYRef }) {
     const sectionRef = useRef(null)
+    const headerRef = useRef(null)
+    const labelRef = useRef(null)
     const [inView, setInView] = useState(false)
+    const inViewRef = useRef(false)
+
+    // Apply the exact color dimming effect the user loved from the Hero section
+    const dimTargets = useMemo(() => [
+        { ref: labelRef, type: "yellow" },
+        { ref: headerRef, type: "heading" },
+    ], [])
+    useScrollDim(dimTargets, currentYRef)
 
     useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => { if (entry.isIntersecting) setInView(true) },
-            { threshold: 0.05 }
-        )
-        if (sectionRef.current) observer.observe(sectionRef.current)
-        return () => observer.disconnect()
+        let animId
+
+        const checkView = () => {
+            if (!headerRef.current) return
+            const rect = headerRef.current.getBoundingClientRect()
+            
+            // Text is visible any time it has scrolled past the 90% view line.
+            // Works reliably regardless of scroll speed!
+            const isVisible = rect.top < window.innerHeight * 0.9
+            
+            // Only trigger state update when the boolean actually flips
+            if (isVisible !== inViewRef.current) {
+                inViewRef.current = isVisible
+                setInView(isVisible)
+            }
+            
+            animId = requestAnimationFrame(checkView)
+        }
+
+        animId = requestAnimationFrame(checkView)
+
+        return () => {
+            cancelAnimationFrame(animId)
+        }
     }, [])
 
     return (
@@ -277,7 +341,7 @@ export default function Projects({ setHovered }) {
             ref={sectionRef}
             style={{
                 background: "#0d0d0d",
-                padding: "6rem 8rem 4rem",
+                padding: "4rem 8rem",
                 position: "relative",
             }}
         >
@@ -291,26 +355,29 @@ export default function Projects({ setHovered }) {
             }} />
 
             {/* Section label */}
-            <div style={{
-                fontSize: "0.75rem",
-                fontFamily: "'Bebas Neue', sans-serif",
-                letterSpacing: "0.3em",
-                color: "#e8d44d",
-                marginBottom: "1rem",
+            <div 
+                ref={labelRef}
+                style={{
+                    fontSize: "2rem",
+                    fontFamily: "'Bebas Neue', sans-serif",
+                    letterSpacing: "0.3em",
+                    color: "#e8d44d",
+                    marginBottom: "1rem",
                 opacity: inView ? 1 : 0,
                 transform: inView ? "translateY(0)" : "translateY(20px)",
-                transition: "opacity 0.6s ease, transform 0.6s ease",
+                transition: "opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)",
             }}>
                 WORK
             </div>
 
             {/* Heading */}
             <h2
+                ref={headerRef}
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
                 style={{
                     fontFamily: "'Bebas Neue', sans-serif",
-                    fontSize: "clamp(3rem, 7vw, 6rem)",
+                    fontSize: "clamp(3rem, 6vw, 4.5rem)",
                     color: "#3a3a3a",
                     letterSpacing: "0.08em",
                     margin: "0 0 4rem 0",
@@ -321,7 +388,7 @@ export default function Projects({ setHovered }) {
                     zIndex: 9999,
                     opacity: inView ? 1 : 0,
                     transform: inView ? "translateY(0)" : "translateY(40px)",
-                    transition: "opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1)",
+                    transition: "opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)",
                     transitionDelay: "0.2s",
                 }}
             >
@@ -329,11 +396,21 @@ export default function Projects({ setHovered }) {
             </h2>
 
             {/* Cards — sticky overlap stack */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+            <div style={{ display: "flex", flexDirection: "column", maxWidth: "860px", margin: "0 auto" }}>
                 {projects.map((project, i) => (
-                    <ProjectCard key={project.number} project={project} index={i} setHovered={setHovered} />
+                    <ProjectCard 
+                        key={project.number} 
+                        project={project} 
+                        index={i} 
+                        total={projects.length}
+                        setHovered={setHovered} 
+                        sectionRef={sectionRef}
+                    />
                 ))}
             </div>
+
+            {/* Extra breathing room between the last card and the Skills section */}
+            <div style={{ height: "40vh" }} />
         </section>
     )
 }
