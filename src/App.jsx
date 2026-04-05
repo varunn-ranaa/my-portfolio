@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import Hero from "./components/me.jsx"
 import About from "./components/About"
 import Projects from "./components/Projects"
 import Skills from "./components/Skills"
 import Contact from "./components/Contact"
 import NavBar from "./components/NavBar"
+import Preloader from "./components/Preloader"
 
 function useSmoothScroll(currentYRef) {
   useEffect(() => {
@@ -67,7 +68,7 @@ function useSmoothScroll(currentYRef) {
       targetY = Math.max(0, Math.min(getMaxScroll(), targetY + dy))
       startTick()
     }
-    
+
     function onSmoothTrigger() {
       startTick()
     }
@@ -90,6 +91,7 @@ function useSmoothScroll(currentYRef) {
 }
 
 export default function App() {
+  const [loading, setLoading] = useState(true)
   const [hovered, setHovered] = useState(false)
   const [isOverImage, setIsOverImage] = useState(false)
   const [activeSection, setActiveSection] = useState("hero")
@@ -97,13 +99,13 @@ export default function App() {
   const ballDomRef = useRef(null)
   const currentYRef = useRef(0)
 
-  const heroWrap    = useRef(null)
-  const aboutWrap   = useRef(null)
+  const heroWrap = useRef(null)
+  const aboutWrap = useRef(null)
   const projectWrap = useRef(null)
-  const skillsWrap  = useRef(null)
+  const skillsWrap = useRef(null)
 
-  const heroOpCur    = useRef(1)
-  const aboutOpCur   = useRef(1)
+  const heroOpCur = useRef(1)
+  const aboutOpCur = useRef(1)
   const projectOpCur = useRef(1)
 
   useSmoothScroll(currentYRef)
@@ -128,7 +130,7 @@ export default function App() {
       const h = el.offsetHeight
 
       const fadeStart = top + h * 0.55
-      const fadeEnd   = top + h
+      const fadeEnd = top + h
 
       const p = Math.min(Math.max((s - fadeStart) / (fadeEnd - fadeStart), 0), 1)
       return 1 - ease(p)
@@ -141,16 +143,16 @@ export default function App() {
 
       if (ballDomRef.current) {
         ballDomRef.current.style.left = ballX + "px"
-        ballDomRef.current.style.top  = ballY + "px"
+        ballDomRef.current.style.top = ballY + "px"
       }
 
       // fade sections
-      const heroTarget    = calcOp(heroWrap.current)
-      const aboutTarget   = calcOp(aboutWrap.current)
+      const heroTarget = calcOp(heroWrap.current)
+      const aboutTarget = calcOp(aboutWrap.current)
       const projectTarget = calcOp(projectWrap.current)
 
-      heroOpCur.current    += (heroTarget    - heroOpCur.current)    * 0.07
-      aboutOpCur.current   += (aboutTarget   - aboutOpCur.current)   * 0.07
+      heroOpCur.current += (heroTarget - heroOpCur.current) * 0.07
+      aboutOpCur.current += (aboutTarget - aboutOpCur.current) * 0.07
       projectOpCur.current += (projectTarget - projectOpCur.current) * 0.07
 
       if (aboutWrap.current) {
@@ -202,9 +204,9 @@ export default function App() {
       setActiveSection(current)
 
       window.__navOffsets__ = {
-        about:   aboutWrap.current?.offsetTop,
-        work:    projectWrap.current?.offsetTop,
-        skills:  skillsWrap.current?.offsetTop,
+        about: aboutWrap.current?.offsetTop,
+        work: projectWrap.current?.offsetTop,
+        skills: skillsWrap.current?.offsetTop,
         contact: contactEl?.offsetTop,
       }
 
@@ -225,17 +227,21 @@ export default function App() {
 
     const map = {
       "about-me": o.about ?? window.innerHeight,
-      "work":     o.work ?? window.innerHeight * 2,
-      "skills":   o.skills ?? window.innerHeight * 3,
-      "contact":  o.contact ?? window.innerHeight * 4,
+      "work": o.work ?? window.innerHeight * 2,
+      "skills": o.skills ?? window.innerHeight * 3,
+      "contact": o.contact ?? window.innerHeight * 4,
     }
 
     window.__smoothNavTarget__ = map[id] ?? 0
     window.dispatchEvent(new Event("smoothScrollTrigger"))
   }
 
+  const handlePreloadComplete = useCallback(() => setLoading(false), [])
+
   return (
     <>
+      {loading && <Preloader onComplete={handlePreloadComplete} />}
+
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { background: #0d0d0d; overflow: hidden; height: 100%; scrollbar-width: none; }
