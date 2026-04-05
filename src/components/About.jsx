@@ -30,7 +30,7 @@ export default function About({ setHovered, currentYRef }) {
 
     const dimTargets = useMemo(() => [
         { ref: labelRef, type: "yellow" },
-        { ref: headerRef, type: "heading" },
+        { ref: headerRef, type: "brightText" },
         { ref: hl1Ref, type: "yellow" },
         { ref: hl2Ref, type: "yellow" },
         { ref: eduLabelRef, type: "yellow" },

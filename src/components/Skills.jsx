@@ -171,18 +171,18 @@ function SkillGroup({ group, gi, inView, currentYRef }) {
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
-            <div 
+            <div
                 ref={catRef}
                 style={{
-                fontSize: "1.2rem",
-                fontFamily: "'Bebas Neue', sans-serif",
-                letterSpacing: "0.28em",
-                color: "#e8d44d",
-                marginBottom: "1rem",
-                opacity: inView ? 1 : 0,
-                transform: inView ? "translateY(0)" : "translateY(12px)",
-                transition: `opacity 0.6s ease ${0.15 + gi * 0.08}s, transform 0.6s ease ${0.15 + gi * 0.08}s`,
-            }}>
+                    fontSize: "1.2rem",
+                    fontFamily: "'Bebas Neue', sans-serif",
+                    letterSpacing: "0.28em",
+                    color: "#e8d44d",
+                    marginBottom: "1rem",
+                    opacity: inView ? 1 : 0,
+                    transform: inView ? "translateY(0)" : "translateY(12px)",
+                    transition: `opacity 0.6s ease ${0.15 + gi * 0.08}s, transform 0.6s ease ${0.15 + gi * 0.08}s`,
+                }}>
                 {group.category}
             </div>
 
@@ -236,18 +236,18 @@ export default function Skills({ setHovered, currentYRef }) {
                 transition: "width 1.2s cubic-bezier(0.16,1,0.3,1)",
             }} />
 
-            <div 
+            <div
                 ref={labelRef}
                 style={{
                     fontSize: "2rem",
                     fontFamily: "'Bebas Neue', sans-serif",
                     letterSpacing: "0.3em",
-                color: "#e8d44d",
-                marginBottom: "1.5rem",
-                opacity: inView ? 1 : 0,
-                transform: inView ? "translateY(0)" : "translateY(20px)",
-                transition: "opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)",
-            }}>
+                    color: "#e8d44d",
+                    marginBottom: "1.5rem",
+                    opacity: inView ? 1 : 0,
+                    transform: inView ? "translateY(0)" : "translateY(20px)",
+                    transition: "opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)",
+                }}>
                 SKILLS
             </div>
 

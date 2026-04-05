@@ -53,12 +53,12 @@ export default function Contact({ setHovered, currentYRef }) {
             {/* Top divider */}
             <div style={{
                 position: "absolute",
-                top: 0, left: "8rem", right: "8rem",
+                top: 0,
+                left: "8rem",
+                width: inView ? "calc(100% - 16rem)" : "0%",
                 height: "1px",
-                background: inView
-                    ? "linear-gradient(90deg, #e8d44d, #e8d44d33, transparent)"
-                    : "transparent",
-                transition: "background 1s ease",
+                background: "linear-gradient(90deg, #e8d44d, #e8d44d33, transparent)",
+                transition: "width 1s cubic-bezier(0.16, 1, 0.3, 1)",
             }} />
 
             {/* Faint BG text */}

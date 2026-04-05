@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 
+
 const words = ["VARUN", "DEVELOPER", "ENGINEER"]
 
 /* ── GitHub Popup ── */
