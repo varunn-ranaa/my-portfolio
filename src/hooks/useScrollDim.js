@@ -13,12 +13,18 @@ export default function useScrollDim(elementRefs, currentYRef) {
                 
                 const rect = ref.current.getBoundingClientRect()
                 
-                // Elements stay 100% bright until they leave the bottom 60% of the screen.
-                // As they climb through the top 40% natively, they progressively dim out.
-                const fadeStart = vh * 0.4
-                const fadeEnd = -vh * 0.2
+                const focusTop = vh * 0.15
+                const focusBottom = vh * 0.55
+                const dullTop = -vh * 0.05
+                const dullBottom = vh * 0.85
                 
-                const p = Math.min(Math.max((fadeStart - rect.top) / (fadeStart - fadeEnd), 0), 1)
+                let p = 0
+                if (rect.top > focusBottom) {
+                    p = (rect.top - focusBottom) / (dullBottom - focusBottom)
+                } else if (rect.top < focusTop) {
+                    p = (focusTop - rect.top) / (focusTop - dullTop)
+                }
+                p = Math.min(Math.max(p, 0), 1)
                 
                 if (type === "yellow") {
                     const rFrom = 232, gFrom = 212, bFrom = 77
@@ -29,6 +35,10 @@ export default function useScrollDim(elementRefs, currentYRef) {
                     ref.current.style.color = `rgb(${r},${g},${b})`
                 } else if (type === "grey") {
                     const gFrom = 95, gTo = 28
+                    const val = Math.round(gFrom + (gTo - gFrom) * p)
+                    ref.current.style.color = `rgb(${val},${val},${val})`
+                } else if (type === "brightText") {
+                    const gFrom = 240, gTo = 60
                     const val = Math.round(gFrom + (gTo - gFrom) * p)
                     ref.current.style.color = `rgb(${val},${val},${val})`
                 } else if (type === "heading") {
