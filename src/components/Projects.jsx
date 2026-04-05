@@ -3,43 +3,31 @@ import useScrollDim from "../hooks/useScrollDim"
 
 const projects = [
     {
-        number: "01",
-        title: "Project Alpha",
-        tag: "Full Stack",
-        year: "2024",
-        description:
-            "A full-stack web application built with the MERN stack. Features real-time updates, JWT auth, and a clean dashboard UI.",
-        tech: ["MongoDB", "Express", "React", "Node.js"],
-        github: "https://github.com/varunn-ranaa",
-        live: "#",
+        name: "Voxa",
+        subtitle: "Video Conferencing Platform",
+        year: "2026",
+        github: "https://github.com/varunn-ranaa/Voxa-video-conferencing",
         accent: "#e8d44d",
-        image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=900&q=80",
-    },
-    {
-        number: "02",
-        title: "Project Beta",
-        tag: "AI / ML",
-        year: "2024",
-        description:
-            "An ML-powered tool that classifies and processes data using a trained model. Built with Python, Flask, and a React frontend.",
-        tech: ["Python", "Flask", "React", "scikit-learn"],
-        github: "https://github.com/varunn-ranaa",
         live: "#",
-        accent: "#ffffff",
-        image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=900&q=80",
+        image: "./Voxa.png",
     },
     {
-        number: "03",
-        title: "Project Gamma",
-        tag: "Frontend",
+        name: "EchoMRI",
+        subtitle: "Enhancing echocardiography images",
+        year: "2026",
+        github: "https://github.com/varunn-ranaa/echoMRI",
+        accent: "#e8d44d",
+        live: "https://varunn-ranaa-echomri.hf.space/",
+        image: "./Echo.png",
+    },
+    {
+        name: "BookMyStay",
+        subtitle: "Rental Platform",
         year: "2025",
-        description:
-            "A pixel-perfect, animated landing page with smooth scroll, custom cursor, and responsive design. Built for performance.",
-        tech: ["React", "CSS", "Framer Motion"],
-        github: "https://github.com/varunn-ranaa",
-        live: "#",
+        github: "https://github.com/varunn-ranaa/BookMyStay",
         accent: "#e8d44d",
-        image: "https://images.unsplash.com/photo-1545670723-196ed0954986?w=900&q=80",
+        live: "#",
+        image: "./BOS.png",
     },
 ]
 
@@ -70,100 +58,78 @@ function CardInner({ project, hov, setHov, setHovered }) {
             }}
         >
             {/* LEFT */}
-            <div style={{
-                padding: "3.5rem 3.8rem",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                borderRight: `1px solid ${hov ? project.accent + "33" : "#1a1a1a"}`,
-                transition: "border-color 0.35s ease",
-                background: "#0d0d0d",
-            }}>
+            <div
+                style={{
+                    padding: "3.5rem 3.8rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    borderRight: `1px solid ${hov ? project.accent + "33" : "#1a1a1a"}`,
+                    transition: "border-color 0.35s ease",
+                    background: "#0d0d0d",
+                    cursor: "pointer"
+                }}
+                onClick={() => window.open(project.live, "_blank")}
+            >
                 <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}>
-                        <span style={{
-                            fontFamily: "'Bebas Neue', sans-serif",
-                            fontSize: "4rem", color: "#1f1f1f",
-                            lineHeight: 1, letterSpacing: "0.04em", userSelect: "none",
-                        }}>{project.number}</span>
-                        <span style={{
-                            fontSize: "0.6rem", fontFamily: "Arial, sans-serif",
-                            color: project.accent, border: `1px solid ${project.accent}44`,
-                            borderRadius: "3px", padding: "3px 10px", letterSpacing: "0.22em",
-                            background: `${project.accent}0d`, textTransform: "uppercase",
-                        }}>{project.tag}</span>
-                    </div>
-
-                    <h3
+                    {/* TITLE */}
+                                        <h3
                         style={{
-                            fontFamily: "'Bebas Neue', sans-serif",
-                            fontSize: "clamp(3.2rem, 4.5vw, 5rem)",
-                            color: "#e2e2e2", letterSpacing: "0.06em",
-                            margin: "0 0 1.4rem 0", lineHeight: 1, transition: "color 0.3s ease",
+                            fontFamily: "'Playfair Display', 'DM Serif Display', Georgia, serif",
+                            fontSize: "clamp(2.4rem, 3vw, 3rem)",
+                            letterSpacing: "0.05em",
+                            margin: "0 0 2rem 0",
+                            lineHeight: 1.15,
+                            fontWeight: 400,
+                           
                         }}
-                        onMouseEnter={e => e.currentTarget.style.color = project.accent}
-                        onMouseLeave={e => e.currentTarget.style.color = "#e2e2e2"}
                     >
-                        {project.title}
+                        <span style={{ color: project.accent, display: "block", fontSize: "0.6em", letterSpacing: "0.16em", marginBottom: "0.4em", fontStyle: "normal" }}>
+                            {project.name}
+                        </span>
+                        <span style={{ color: "#e2e2e2", display: "block" }}>
+                            {project.subtitle}
+                        </span>
                     </h3>
-
-                    <p style={{
-                        fontSize: "0.85rem", fontFamily: "Arial, sans-serif",
-                        color: "#555", lineHeight: 1.85, margin: 0,
-                    }}>{project.description}</p>
-                </div>
-
-                <div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1.8rem", marginTop: "2rem" }}>
-                        {project.tech.map(t => (
-                            <span key={t} style={{
-                                fontSize: "0.62rem", fontFamily: "Arial, sans-serif",
-                                color: "#444", border: "1px solid #222", borderRadius: "3px",
-                                padding: "3px 10px", letterSpacing: "0.12em", textTransform: "uppercase",
-                            }}>{t}</span>
-                        ))}
-                    </div>
-                    <div style={{ display: "flex", gap: "0.8rem" }}>
-                        <a href={project.github} target="_blank" rel="noreferrer"
-                            style={{
-                                display: "flex", alignItems: "center", gap: "0.45rem",
-                                fontSize: "0.72rem", fontFamily: "Arial, sans-serif",
-                                color: "#444", textDecoration: "none", letterSpacing: "0.1em",
-                                border: "1px solid #222", borderRadius: "4px", padding: "7px 16px",
-                                transition: "color 0.2s, border-color 0.2s",
-                            }}
-                            onMouseOver={e => { e.currentTarget.style.color = "#e8d44d"; e.currentTarget.style.borderColor = "#e8d44d44" }}
-                            onMouseOut={e => { e.currentTarget.style.color = "#444"; e.currentTarget.style.borderColor = "#222" }}
-                        >
-                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.1.82-.26.82-.57v-2c-3.34.72-4.04-1.6-4.04-1.6-.55-1.4-1.34-1.77-1.34-1.77-1.08-.74.08-.72.08-.72 1.2.08 1.83 1.23 1.83 1.23 1.07 1.83 2.8 1.3 3.48 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.3.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.28-1.23 3.28-1.23.64 1.66.24 2.88.12 3.18.77.84 1.23 1.92 1.23 3.22 0 4.6-2.8 5.63-5.48 5.92.43.37.82 1.1.82 2.22v3.3c0 .3.2.68.82.56C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z" />
-                            </svg>
-                            GitHub
-                        </a>
-                        <a href={project.live} target="_blank" rel="noreferrer"
-                            style={{
-                                display: "flex", alignItems: "center", gap: "0.45rem",
-                                fontSize: "0.72rem", fontFamily: "Arial, sans-serif",
-                                color: "#e8d44d", textDecoration: "none", letterSpacing: "0.1em",
-                                border: "1px solid #e8d44d33", borderRadius: "4px", padding: "7px 16px",
-                                background: "#e8d44d0d", transition: "opacity 0.2s",
-                            }}
-                            onMouseOver={e => e.currentTarget.style.opacity = "0.65"}
-                            onMouseOut={e => e.currentTarget.style.opacity = "1"}
-                        >
-                            <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                <polyline points="15 3 21 3 21 9" />
-                                <line x1="10" y1="14" x2="21" y2="3" />
-                            </svg>
-                            Live
-                        </a>
-                    </div>
+                    {/* GITHUB BUTTON */}
+                    <a
+                        href={project.github}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.45rem",
+                            fontSize: "0.72rem",
+                            fontFamily: "Arial, sans-serif",
+                            color: "#444",
+                            textDecoration: "none",
+                            letterSpacing: "0.1em",
+                            border: "1px solid #222",
+                            borderRadius: "4px",
+                            padding: "7px 16px",
+                            transition: "color 0.2s, border-color 0.2s",
+                        }}
+                        onMouseOver={e => {
+                            e.currentTarget.style.color = project.accent
+                            e.currentTarget.style.borderColor = project.accent + "44"
+                        }}
+                        onMouseOut={e => {
+                            e.currentTarget.style.color = "#444"
+                            e.currentTarget.style.borderColor = "#222"
+                        }}
+                    >
+                        <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.1.82-.26.82-.57v-2c-3.34.72-4.04-1.6-4.04-1.6-.55-1.4-1.34-1.77-1.34-1.77-1.08-.74.08-.72.08-.72 1.2.08 1.83 1.23 1.83 1.23 1.07 1.83 2.8 1.3 3.48 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.3.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.28-1.23 3.28-1.23.64 1.66.24 2.88.12 3.18.77.84 1.23 1.92 1.23 3.22 0 4.6-2.8 5.63-5.48 5.92.43.37.82 1.1.82 2.22v3.3c0 .3.2.68.82.56C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z" />
+                        </svg>
+                        GitHub
+                    </a>
                 </div>
             </div>
 
             {/* RIGHT — Image */}
-            <div style={{ position: "relative", overflow: "hidden", background: "#080808" }}>
+            <div onClick={() => window.open(project.live, "_blank")} style={{ position: "relative", overflow: "hidden", background: "#080808", cursor: "pointer" }}>
                 <span style={{
                     position: "absolute", top: "1.4rem", right: "1.6rem",
                     fontFamily: "'Bebas Neue', sans-serif", fontSize: "0.9rem",

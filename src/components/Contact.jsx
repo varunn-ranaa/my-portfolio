@@ -66,12 +66,13 @@ export default function Contact({ setHovered, currentYRef }) {
                 position: "absolute",
                 bottom: "-3rem", right: "-1rem",
                 fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: "clamp(6rem, 17vw, 16rem)",
+                fontSize: "clamp(5rem, 16vw, 14rem)",
                 color: "#ffffff04",
                 letterSpacing: "0.05em",
                 lineHeight: 1,
                 userSelect: "none",
                 pointerEvents: "none",
+                left : "50%"
             }}>
                 CONNECT
             </div>

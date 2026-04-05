@@ -96,7 +96,6 @@ export default function Preloader({ onComplete }) {
                     userSelect: "none",
                     whiteSpace: "nowrap",
                     display: "block",
-                    // clamp: min small, max capped so all 7 letters fit inside viewport
                     fontSize: phase === "idle" ? "0.6rem" : "clamp(3rem, 20vw, 12rem)",
                     opacity:  phase === "idle" ? 0 : phase === "grow" ? 1 : 0.07,
                     transition: phase === "grow"
@@ -114,15 +113,15 @@ export default function Preloader({ onComplete }) {
                     marginTop: "0.2rem",
                     overflow: "hidden",
                 }}>
-                    {/* Comet body — right to left */}
+                    {/* Comet body — left to right */}
                     <div style={{
                         position: "absolute",
                         top: 0,
-                        right: "-100%",
+                        left: "-100%",
                         width: "100%",
                         height: "100%",
-                        background: "linear-gradient(90deg, #e8d44d 0%, rgba(232,212,77,0.6) 15%, rgba(232,212,77,0.15) 50%, transparent 100%)",
-                        transform: phase === "idle" ? "translateX(0%)" : "translateX(-220%)",
+                        background: "linear-gradient(90deg, transparent 0%, rgba(232,212,77,0.15) 50%, rgba(232,212,77,0.6) 85%, #e8d44d 100%)",
+                        transform: phase === "idle" ? "translateX(0%)" : "translateX(220%)",
                         transition: phase === "grow"
                             ? "transform 1.6s cubic-bezier(0.25, 0.1, 0.2, 1) 0.5s"
                             : "none",
@@ -132,13 +131,13 @@ export default function Preloader({ onComplete }) {
                     <div style={{
                         position: "absolute",
                         top: "-3px",
-                        right: "-100%",
+                        left: "-100%",
                         width: "7px",
                         height: "7px",
                         borderRadius: "50%",
                         background: "#e8d44d",
                         boxShadow: "0 0 10px #e8d44d, 0 0 24px #e8d44d99, 0 0 48px #e8d44d44",
-                        transform: phase === "idle" ? "translateX(0%)" : "translateX(-3300%)",
+                        transform: phase === "idle" ? "translateX(0%)" : "translateX(3300%)",
                         transition: phase === "grow"
                             ? "transform 1.6s cubic-bezier(0.25, 0.1, 0.2, 1) 0.5s"
                             : "none",
