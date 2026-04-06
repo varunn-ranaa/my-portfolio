@@ -12,10 +12,37 @@ function useSmoothScroll(currentYRef) {
     let targetY = 0, rafId = null, isScrolling = false
     const LERP = 0.09
 
-    document.documentElement.style.overflow = "hidden"
-    document.body.style.overflow = "hidden"
+    // Mobile pe native scroll use karo — smooth scroll sirf desktop pe
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth <= 768
 
     const scroller = document.getElementById("__smooth_root__")
+
+    if (isMobile) {
+      // Mobile: native scroll, no JS smooth scroll
+      document.documentElement.style.overflow = ""
+      document.body.style.overflow = ""
+      document.body.style.height = "auto"
+      document.documentElement.style.height = "auto"
+
+      if (scroller) {
+        scroller.style.position = "relative"
+        scroller.style.top = ""
+        scroller.style.left = ""
+        scroller.style.width = "100%"
+        scroller.style.transform = "none"
+        scroller.style.willChange = "auto"
+      }
+
+      const onScroll = () => {
+        currentYRef.current = window.scrollY
+      }
+      window.addEventListener("scroll", onScroll, { passive: true })
+      return () => window.removeEventListener("scroll", onScroll)
+    }
+
+    // Desktop: JS smooth scroll
+    document.documentElement.style.overflow = "hidden"
+    document.body.style.overflow = "hidden"
 
     function getMaxScroll() {
       return Math.max(0, (scroller?.scrollHeight || 0) - window.innerHeight)
@@ -95,6 +122,7 @@ export default function App() {
   const [hovered, setHovered] = useState(false)
   const [isOverImage, setIsOverImage] = useState(false)
   const [activeSection, setActiveSection] = useState("hero")
+  const [isMobile, setIsMobile] = useState(false)
 
   const ballDomRef = useRef(null)
   const currentYRef = useRef(0)
@@ -109,6 +137,15 @@ export default function App() {
   const projectOpCur = useRef(1)
 
   useSmoothScroll(currentYRef)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   useEffect(() => {
     let mouseX = -100, mouseY = -100
@@ -137,13 +174,15 @@ export default function App() {
     }
 
     const animate = () => {
-      // cursor
-      ballX += (mouseX - ballX) * 0.08
-      ballY += (mouseY - ballY) * 0.08
+      // cursor — mobile pe skip
+      if (!isMobile) {
+        ballX += (mouseX - ballX) * 0.08
+        ballY += (mouseY - ballY) * 0.08
 
-      if (ballDomRef.current) {
-        ballDomRef.current.style.left = ballX + "px"
-        ballDomRef.current.style.top = ballY + "px"
+        if (ballDomRef.current) {
+          ballDomRef.current.style.left = ballX + "px"
+          ballDomRef.current.style.top = ballY + "px"
+        }
       }
 
       // fade sections
@@ -165,7 +204,6 @@ export default function App() {
         projectWrap.current.style.transform = `translateY(${(1 - projectOpCur.current) * 40}px)`
       }
 
-      // 🔥 SKILLS FIX (repeat animation)
       if (skillsWrap.current) {
         const s = currentYRef.current
         const top = skillsWrap.current.offsetTop
@@ -220,7 +258,7 @@ export default function App() {
       window.removeEventListener("mousemove", handleMove)
       cancelAnimationFrame(animId)
     }
-  }, [])
+  }, [isMobile])
 
   const navScrollTo = (id) => {
     const o = window.__navOffsets__ || {}
@@ -232,8 +270,15 @@ export default function App() {
       "contact": o.contact ?? window.innerHeight * 4,
     }
 
-    window.__smoothNavTarget__ = map[id] ?? 0
-    window.dispatchEvent(new Event("smoothScrollTrigger"))
+    const targetY = map[id] ?? 0
+
+    if (isMobile) {
+      // Mobile: native smooth scroll
+      window.scrollTo({ top: targetY, behavior: "smooth" })
+    } else {
+      window.__smoothNavTarget__ = targetY
+      window.dispatchEvent(new Event("smoothScrollTrigger"))
+    }
   }
 
   const handlePreloadComplete = useCallback(() => setLoading(false), [])
@@ -244,40 +289,68 @@ export default function App() {
 
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { background: #0d0d0d; overflow: hidden; height: 100%; scrollbar-width: none; }
+
+        html, body {
+          background: #0d0d0d;
+          scrollbar-width: none;
+        }
         ::-webkit-scrollbar { display: none; }
 
-        #__smooth_root__ {
-          will-change: transform;
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
+        /* Desktop: fixed smooth scroll */
+        @media (min-width: 769px) {
+          html, body {
+            overflow: hidden;
+            height: 100%;
+          }
+          #__smooth_root__ {
+            will-change: transform;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+          }
+        }
+
+        /* Mobile: native scroll */
+        @media (max-width: 768px) {
+          html, body {
+            overflow-x: hidden;
+            overflow-y: auto;
+            height: auto;
+          }
+          #__smooth_root__ {
+            position: relative !important;
+            transform: none !important;
+            width: 100%;
+          }
         }
       `}</style>
 
-      <div
-        id="global-cursor-ball"
-        ref={ballDomRef}
-        style={{
-          position: "fixed",
-          left: "-100px",
-          top: "-100px",
-          width: hovered ? "18rem" : "14px",
-          height: hovered ? "18rem" : "14px",
-          borderRadius: "50%",
-          background: "#e8d44d",
-          transform: "translate(-50%, -50%)",
-          pointerEvents: "none",
-          zIndex: 9999,
-          transition:
-            "width 0.4s cubic-bezier(0.34,1.56,0.64,1), height 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease",
-          mixBlendMode: "difference",
-          opacity: isOverImage ? 0 : 1,
-        }}
-      />
+      {/* Custom cursor — desktop only */}
+      {!isMobile && (
+        <div
+          id="global-cursor-ball"
+          ref={ballDomRef}
+          style={{
+            position: "fixed",
+            left: "-100px",
+            top: "-100px",
+            width: hovered ? "18rem" : "14px",
+            height: hovered ? "18rem" : "14px",
+            borderRadius: "50%",
+            background: "#e8d44d",
+            transform: "translate(-50%, -50%)",
+            pointerEvents: "none",
+            zIndex: 9999,
+            transition:
+              "width 0.4s cubic-bezier(0.34,1.56,0.64,1), height 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease",
+            mixBlendMode: "difference",
+            opacity: isOverImage ? 0 : 1,
+          }}
+        />
+      )}
 
-      <NavBar activeSection={activeSection} navScrollTo={navScrollTo} />
+      <NavBar activeSection={activeSection} navScrollTo={navScrollTo} isMobile={isMobile} />
 
       <div id="__smooth_root__">
         <div ref={heroWrap} style={{ position: "relative", background: "#0d0d0d" }}>
