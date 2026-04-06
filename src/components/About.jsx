@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react"
 import useScrollDim from "../hooks/useScrollDim"
+import ParticleCanvas from "./ParticleCanvas"
 
 function useInView(threshold = 0.2) {
     const ref = useRef(null)
@@ -64,6 +65,8 @@ export default function About({ setHovered, currentYRef }) {
                 transition: "width 1s cubic-bezier(0.16, 1, 0.3, 1)",
                 transitionDelay: "0s",
             }} />
+
+            <ParticleCanvas count={70} />
 
             {/* ABOUT ME label */}
             <div 

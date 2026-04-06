@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react"
 import useScrollDim from "../hooks/useScrollDim"
+import ParticleCanvas from "./ParticleCanvas"
 
 function useInView(threshold = 0.1) {
     const ref = useRef(null)
@@ -60,6 +61,8 @@ export default function Contact({ setHovered, currentYRef }) {
                 background: "linear-gradient(90deg, #e8d44d, #e8d44d33, transparent)",
                 transition: "width 1s cubic-bezier(0.16, 1, 0.3, 1)",
             }} />
+
+            <ParticleCanvas count={60} />
 
             {/* Faint BG text */}
             <div style={{
@@ -224,7 +227,7 @@ export default function Contact({ setHovered, currentYRef }) {
                             {
                                 icon: (
                                     <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 .77 24 1.77 24h20.45C23.2 24 24 23.23 24 22.28V1.72C24 .77 23.2 0 22.22 0z"/>
+                                        <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45C23.2 24 24 23.23 24 22.28V1.72C24 .77 23.2 0 22.22 0z"/>
                                     </svg>
                                 ),
                                 label: "linkedin.com/in/varun-rana",

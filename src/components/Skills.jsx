@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react"
 import useScrollDim from "../hooks/useScrollDim"
+import ParticleCanvas from "./ParticleCanvas"
 
 const skillGroups = [
     { category: "Frontend", items: ["React", "HTML", "CSS", "JavaScript"] },
@@ -91,6 +92,7 @@ function SkillPill({ name, delay, inView }) {
                 `,
             }}
         >
+
             {/* SVG animated border — rendered only after dims are measured */}
             {pillPath && (
                 <svg
@@ -220,14 +222,18 @@ export default function Skills({ setHovered, currentYRef }) {
     useScrollDim(dimTargets, currentYRef)
 
     return (
+        
         <section
             id="skills"
             ref={ref}
             style={{
                 background: "#0d0d0d",
                 padding: "4rem 8rem",
+                position: "relative",   
+                 overflow: "hidden",
             }}
         >
+            <ParticleCanvas count={60} />
             <div style={{
                 width: inView ? "100%" : "0%",
                 height: "1px",

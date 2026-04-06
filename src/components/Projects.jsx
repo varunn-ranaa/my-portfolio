@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react"
 import useScrollDim from "../hooks/useScrollDim"
+import ParticleCanvas from "./ParticleCanvas"
 
 const projects = [
     {
@@ -37,6 +38,7 @@ const NAVBAR_HEIGHT = 80
 // ─── Shared card UI ──────────────────────────────────────────────────────────
 function CardInner({ project, hov, setHov, setHovered }) {
     return (
+        
         <div
             onMouseEnter={() => setHov(true)}
             onMouseLeave={() => setHov(false)}
@@ -71,6 +73,7 @@ function CardInner({ project, hov, setHov, setHovered }) {
                 }}
                 onClick={() => window.open(project.live, "_blank")}
             >
+                
                 <div>
                     {/* TITLE */}
                                         <h3
@@ -254,6 +257,8 @@ export default function Projects({ setHovered, currentYRef }) {
             ref={sectionRef}
             style={{ background: "#0d0d0d", padding: "4rem 2rem", position: "relative" }}
         >
+            <ParticleCanvas count={60} />
+
             {/* Top divider */}
             <div style={{
                 width: inView ? "calc(100% - 6rem)" : "0%",
