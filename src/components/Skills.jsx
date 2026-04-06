@@ -30,7 +30,6 @@ function SkillPill({ name, delay, inView }) {
 
     useEffect(() => {
         if (!outerRef.current) return
-        // Small timeout so browser paints opacity/transform first, then we measure
         const id = setTimeout(() => {
             const el = outerRef.current
             if (!el) return
@@ -48,12 +47,10 @@ function SkillPill({ name, delay, inView }) {
     const { w, h } = dims
     const r = h / 2
 
-    // Clean pill path
     const pillPath = w > 0 && h > 0
         ? `M ${r} 0 H ${w - r} A ${r} ${r} 0 0 1 ${w - r} ${h} H ${r} A ${r} ${r} 0 0 1 ${r} 0 Z`
         : ""
 
-    // Safe CSS id (no spaces/slashes)
     const gradId = `trail-${name.replace(/[^a-z0-9]/gi, "")}`
 
     return (
@@ -79,7 +76,6 @@ function SkillPill({ name, delay, inView }) {
                 fontSize: "0.9rem",
                 whiteSpace: "nowrap",
                 cursor: "default",
-                // Separate transitions so delay only applies to entry animation
                 opacity: inView ? 1 : 0,
                 transform: inView ? "translateY(0)" : "translateY(18px)",
                 transition: `
@@ -92,8 +88,6 @@ function SkillPill({ name, delay, inView }) {
                 `,
             }}
         >
-
-            {/* SVG animated border — rendered only after dims are measured */}
             {pillPath && (
                 <svg
                     style={{
@@ -114,11 +108,7 @@ function SkillPill({ name, delay, inView }) {
                             <stop offset="100%" stopColor="#e8d44d" stopOpacity="0" />
                         </linearGradient>
                     </defs>
-
-                    {/* Static base border */}
                     <path d={pillPath} fill="none" stroke="#1f1f1f" strokeWidth="1" />
-
-                    {/* Orbiting gradient trail */}
                     <path
                         d={pillPath}
                         fill="none"
@@ -136,7 +126,6 @@ function SkillPill({ name, delay, inView }) {
                 </svg>
             )}
 
-            {/* Dot indicator */}
             <span style={{
                 flexShrink: 0,
                 width: hovered ? "7px" : "5px",
@@ -214,6 +203,14 @@ export default function Skills({ setHovered, currentYRef }) {
     const [ref, inView] = useInView(0.1)
     const labelRef = useRef(null)
     const headerRef = useRef(null)
+    const [isMobile, setIsMobile] = useState(false)
+
+    useEffect(() => {
+        const check = () => setIsMobile(window.innerWidth <= 768)
+        check()
+        window.addEventListener("resize", check)
+        return () => window.removeEventListener("resize", check)
+    }, [])
 
     const dimTargets = useMemo(() => [
         { ref: labelRef, type: "yellow" },
@@ -222,18 +219,17 @@ export default function Skills({ setHovered, currentYRef }) {
     useScrollDim(dimTargets, currentYRef)
 
     return (
-        
         <section
             id="skills"
             ref={ref}
             style={{
                 background: "#0d0d0d",
-                padding: "4rem 8rem",
-                position: "relative",   
-                 overflow: "hidden",
+                padding: isMobile ? "3rem 1.5rem" : "4rem 8rem",
+                position: "relative",
+                overflow: "hidden",
             }}
         >
-            <ParticleCanvas count={60} />
+            <ParticleCanvas count={isMobile ? 25 : 60} />
             <div style={{
                 width: inView ? "100%" : "0%",
                 height: "1px",
@@ -245,7 +241,7 @@ export default function Skills({ setHovered, currentYRef }) {
             <div
                 ref={labelRef}
                 style={{
-                    fontSize: "2rem",
+                    fontSize: isMobile ? "1.4rem" : "2rem",
                     fontFamily: "'Bebas Neue', sans-serif",
                     letterSpacing: "0.3em",
                     color: "#e8d44d",
@@ -259,18 +255,18 @@ export default function Skills({ setHovered, currentYRef }) {
 
             <h2
                 ref={headerRef}
-                onMouseEnter={() => setHovered && setHovered(true)}
-                onMouseLeave={() => setHovered && setHovered(false)}
+                onMouseEnter={() => !isMobile && setHovered && setHovered(true)}
+                onMouseLeave={() => !isMobile && setHovered && setHovered(false)}
                 style={{
                     fontFamily: "'Bebas Neue', sans-serif",
-                    fontSize: "clamp(3rem, 6vw, 4.5rem)",
+                    fontSize: isMobile ? "clamp(2rem, 8vw, 3rem)" : "clamp(3rem, 6vw, 4.5rem)",
                     color: "#2e2e2e",
                     letterSpacing: "0.06em",
                     marginBottom: "4rem",
                     opacity: inView ? 1 : 0,
                     transform: inView ? "translateY(0)" : "translateY(24px)",
                     transition: "opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s",
-                    cursor: "none",
+                    cursor: isMobile ? "default" : "none",
                     userSelect: "none",
                 }}
             >
@@ -279,8 +275,8 @@ export default function Skills({ setHovered, currentYRef }) {
 
             <div style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                gap: "3rem",
+                gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(auto-fit, minmax(220px, 1fr))",
+                gap: isMobile ? "2rem" : "3rem",
                 maxWidth: "900px",
             }}>
                 {skillGroups.map((group, gi) => (

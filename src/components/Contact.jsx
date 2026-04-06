@@ -22,6 +22,14 @@ export default function Contact({ setHovered, currentYRef }) {
     const headerRef = useRef(null)
     const hlRef = useRef(null)
     const iconRefs = useRef([])
+    const [isMobile, setIsMobile] = useState(false)
+
+    useEffect(() => {
+        const check = () => setIsMobile(window.innerWidth <= 768)
+        check()
+        window.addEventListener("resize", check)
+        return () => window.removeEventListener("resize", check)
+    }, [])
 
     const dimTargets = useMemo(() => {
         const targets = [
@@ -36,7 +44,6 @@ export default function Contact({ setHovered, currentYRef }) {
     }, [])
     useScrollDim(dimTargets, currentYRef)
 
-
     return (
         <section
             id="contact"
@@ -46,7 +53,7 @@ export default function Contact({ setHovered, currentYRef }) {
                 minHeight: "100vh",
                 display: "flex",
                 alignItems: "center",
-                padding: "4rem 8rem",
+                padding: isMobile ? "4rem 1.5rem" : "4rem 8rem",
                 position: "relative",
                 overflow: "hidden",
             }}
@@ -55,14 +62,14 @@ export default function Contact({ setHovered, currentYRef }) {
             <div style={{
                 position: "absolute",
                 top: 0,
-                left: "8rem",
-                width: inView ? "calc(100% - 16rem)" : "0%",
+                left: isMobile ? "1.5rem" : "8rem",
+                width: inView ? (isMobile ? "calc(100% - 3rem)" : "calc(100% - 16rem)") : "0%",
                 height: "1px",
                 background: "linear-gradient(90deg, #e8d44d, #e8d44d33, transparent)",
                 transition: "width 1s cubic-bezier(0.16, 1, 0.3, 1)",
             }} />
 
-            <ParticleCanvas count={60} />
+            <ParticleCanvas count={isMobile ? 25 : 60} />
 
             {/* Faint BG text */}
             <div style={{
@@ -75,28 +82,29 @@ export default function Contact({ setHovered, currentYRef }) {
                 lineHeight: 1,
                 userSelect: "none",
                 pointerEvents: "none",
-                left : "50%"
+                left: "50%"
             }}>
                 CONNECT
             </div>
 
             <div style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "6rem",
+                gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+                gap: isMobile ? "2.5rem" : "6rem",
                 width: "100%",
                 maxWidth: "960px",
                 alignItems: "center",
             }}>
 
-                {/* LEFT — Photo */}
-                <div style={{
-                    opacity: inView ? 1 : 0,
-                    transform: inView ? "translateX(0)" : "translateX(-40px)",
-                    transition: "opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1)",
-                    transitionDelay: "0.1s",
-                }}>
+                {/* LEFT — Photo (hidden on mobile or shown smaller) */}
+                {!isMobile && (
                     <div style={{
+                        opacity: inView ? 1 : 0,
+                        transform: inView ? "translateX(0)" : "translateX(-40px)",
+                        transition: "opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1)",
+                        transitionDelay: "0.1s",
+                    }}>
+                        <div style={{
                             position: "relative",
                             width: "100%",
                             aspectRatio: "4/5",
@@ -105,69 +113,99 @@ export default function Contact({ setHovered, currentYRef }) {
                             overflow: "hidden",
                             border: "1px solid #1e1e1e",
                         }}>
-                        <img
-                            src="/me.jpeg"
-                            alt="Varun Rana"
-                            style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                                display: "block",
-                            }}
-                        />
-                        {/* Bottom gradient overlay */}
-                        <div style={{
-                            position: "absolute",
-                            inset: 0,
-                            background: "linear-gradient(to top, #0d0d0daa 0%, transparent 50%)",
-                        }} />
-                        {/* Yellow corner accent */}
-                        <div style={{
-                            position: "absolute",
-                            top: 0, left: 0,
-                            width: "40px", height: "3px",
-                            background: "#e8d44d",
-                        }} />
-                        <div style={{
-                            position: "absolute",
-                            top: 0, left: 0,
-                            width: "3px", height: "40px",
-                            background: "#e8d44d",
-                        }} />
+                            <img
+                                src="/me.jpeg"
+                                alt="Varun Rana"
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                    display: "block",
+                                }}
+                            />
+                            <div style={{
+                                position: "absolute",
+                                inset: 0,
+                                background: "linear-gradient(to top, #0d0d0daa 0%, transparent 50%)",
+                            }} />
+                            <div style={{
+                                position: "absolute",
+                                top: 0, left: 0,
+                                width: "40px", height: "3px",
+                                background: "#e8d44d",
+                            }} />
+                            <div style={{
+                                position: "absolute",
+                                top: 0, left: 0,
+                                width: "3px", height: "40px",
+                                background: "#e8d44d",
+                            }} />
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* RIGHT — Info */}
                 <div>
+                    {/* Mobile: small photo at top */}
+                    {isMobile && (
+                        <div style={{
+                            marginBottom: "2rem",
+                            opacity: inView ? 1 : 0,
+                            transition: "opacity 0.9s ease",
+                            transitionDelay: "0.1s",
+                        }}>
+                            <div style={{
+                                position: "relative",
+                                width: "100px",
+                                height: "100px",
+                                borderRadius: "12px",
+                                overflow: "hidden",
+                                border: "1px solid #1e1e1e",
+                            }}>
+                                <img src="/me.jpeg" alt="Varun Rana" style={{
+                                    width: "100%", height: "100%", objectFit: "cover", display: "block",
+                                }} />
+                                <div style={{
+                                    position: "absolute", top: 0, left: 0,
+                                    width: "24px", height: "2px", background: "#e8d44d",
+                                }} />
+                                <div style={{
+                                    position: "absolute", top: 0, left: 0,
+                                    width: "2px", height: "24px", background: "#e8d44d",
+                                }} />
+                            </div>
+                        </div>
+                    )}
+
                     {/* Label */}
-                    <div 
+                    <div
                         ref={labelRef}
                         style={{
-                            fontSize: "2rem",
+                            fontSize: isMobile ? "1.4rem" : "2rem",
                             fontFamily: "'Bebas Neue', sans-serif",
                             letterSpacing: "0.3em",
-                        color: "#e8d44d",
-                        marginBottom: "1.5rem",
-                        opacity: inView ? 1 : 0,
-                        transition: "opacity 0.6s ease",
-                        transitionDelay: "0.2s",
-                    }}>
+                            color: "#e8d44d",
+                            marginBottom: "1.5rem",
+                            opacity: inView ? 1 : 0,
+                            transition: "opacity 0.6s ease",
+                            transitionDelay: "0.2s",
+                        }}>
                         CONNECT
                     </div>
 
                     {/* Big heading */}
                     <h2
                         ref={headerRef}
-                        onMouseEnter={() => setHovered(true)}
-                        onMouseLeave={() => setHovered(false)}
+                        onMouseEnter={() => !isMobile && setHovered(true)}
+                        onMouseLeave={() => !isMobile && setHovered(false)}
                         style={{
                             fontFamily: "'Bebas Neue', sans-serif",
-                            fontSize: "clamp(3rem, 6vw, 4.5rem)",
+                            fontSize: isMobile ? "clamp(2.2rem, 10vw, 3rem)" : "clamp(3rem, 6vw, 4.5rem)",
                             color: "#3a3a3a",
                             letterSpacing: "0.06em",
                             lineHeight: 1.05,
                             margin: "0 0 1rem 0",
-                            cursor: "none",
+                            cursor: isMobile ? "default" : "none",
                             userSelect: "none",
                             opacity: inView ? 1 : 0,
                             transform: inView ? "translateY(0)" : "translateY(30px)",
@@ -246,12 +284,13 @@ export default function Contact({ setHovered, currentYRef }) {
                                     color: "#444",
                                     textDecoration: "none",
                                     fontFamily: "Arial, sans-serif",
-                                    fontSize: "0.82rem",
+                                    fontSize: isMobile ? "0.75rem" : "0.82rem",
                                     letterSpacing: "0.03em",
                                     padding: "0.6rem 0",
                                     borderBottom: "1px solid #1a1a1a",
                                     transition: "color 0.2s",
                                     cursor: "pointer",
+                                    wordBreak: "break-all",
                                 }}
                                 onMouseEnter={e => e.currentTarget.style.color = "#e8d44d"}
                                 onMouseLeave={e => e.currentTarget.style.color = "#444"}

@@ -36,16 +36,15 @@ const CARD_SCROLL_DISTANCE = 600
 const NAVBAR_HEIGHT = 80
 
 // ─── Shared card UI ──────────────────────────────────────────────────────────
-function CardInner({ project, hov, setHov, setHovered }) {
+function CardInner({ project, hov, setHov, setHovered, isMobile }) {
     return (
-        
         <div
-            onMouseEnter={() => setHov(true)}
-            onMouseLeave={() => setHov(false)}
+            onMouseEnter={() => !isMobile && setHov(true)}
+            onMouseLeave={() => !isMobile && setHov(false)}
             style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                minHeight: "480px",
+                gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+                minHeight: isMobile ? "auto" : "480px",
                 background: "#0f0f0f",
                 border: hov ? `1px solid ${project.accent}99` : "1px solid #1a1a1a",
                 borderRadius: "0px",
@@ -59,32 +58,59 @@ function CardInner({ project, hov, setHov, setHovered }) {
                 willChange: "transform, filter",
             }}
         >
-            {/* LEFT */}
+            {/* Image on top for mobile */}
+            {isMobile && (
+                <div
+                    onClick={() => window.open(project.live, "_blank")}
+                    style={{ position: "relative", overflow: "hidden", background: "#080808", height: "200px", cursor: "pointer" }}
+                >
+                    <span style={{
+                        position: "absolute", top: "1rem", right: "1rem",
+                        fontFamily: "'Bebas Neue', sans-serif", fontSize: "0.8rem",
+                        color: "#2a2a2a", letterSpacing: "0.2em", zIndex: 2,
+                    }}>{project.year}</span>
+                    <img src={project.image} alt={project.name} style={{
+                        width: "100%", height: "100%", objectFit: "cover", display: "block",
+                        opacity: 0.6,
+                        filter: "grayscale(20%)",
+                        transition: "opacity 0.55s ease, filter 0.55s ease",
+                    }} />
+                    <div style={{
+                        position: "absolute", inset: 0,
+                        background: "linear-gradient(135deg, rgba(13,13,13,0.5) 0%, transparent 60%)",
+                        pointerEvents: "none",
+                    }} />
+                    <div style={{
+                        position: "absolute", bottom: 0, left: 0, right: 0, height: "1px",
+                        background: `linear-gradient(90deg, ${project.accent}, ${project.accent}00)`,
+                    }} />
+                </div>
+            )}
+
+            {/* LEFT — Text */}
             <div
                 style={{
-                    padding: "3.5rem 3.8rem",
+                    padding: isMobile ? "1.8rem 1.5rem" : "3.5rem 3.8rem",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "center",
-                    borderRight: `1px solid ${hov ? project.accent + "33" : "#1a1a1a"}`,
+                    borderRight: isMobile ? "none" : `1px solid ${hov ? project.accent + "33" : "#1a1a1a"}`,
+                    borderTop: isMobile ? `1px solid #1a1a1a` : "none",
                     transition: "border-color 0.35s ease",
                     background: "#0d0d0d",
                     cursor: "pointer"
                 }}
                 onClick={() => window.open(project.live, "_blank")}
             >
-                
                 <div>
-                    {/* TITLE */}
-                                        <h3
+                    <h3
                         style={{
                             fontFamily: "'Playfair Display', 'DM Serif Display', Georgia, serif",
-                            fontSize: "clamp(2.4rem, 3vw, 3rem)",
+                            fontSize: isMobile ? "clamp(1.6rem, 6vw, 2rem)" : "clamp(2.4rem, 3vw, 3rem)",
                             letterSpacing: "0.05em",
-                            margin: "0 0 2rem 0",
+                            margin: isMobile ? "0 0 1.2rem 0" : "0 0 2rem 0",
                             lineHeight: 1.15,
                             fontWeight: 400,
-                           
                         }}
                     >
                         <span style={{ color: project.accent, display: "block", fontSize: "0.6em", letterSpacing: "0.16em", marginBottom: "0.4em", fontStyle: "normal" }}>
@@ -94,7 +120,6 @@ function CardInner({ project, hov, setHov, setHovered }) {
                             {project.subtitle}
                         </span>
                     </h3>
-                    {/* GITHUB BUTTON */}
                     <a
                         href={project.github}
                         target="_blank"
@@ -131,42 +156,46 @@ function CardInner({ project, hov, setHov, setHovered }) {
                 </div>
             </div>
 
-            {/* RIGHT — Image */}
-            <div onClick={() => window.open(project.live, "_blank")} style={{ position: "relative", overflow: "hidden", background: "#080808", cursor: "pointer" }}>
-                <span style={{
-                    position: "absolute", top: "1.4rem", right: "1.6rem",
-                    fontFamily: "'Bebas Neue', sans-serif", fontSize: "0.9rem",
-                    color: "#2a2a2a", letterSpacing: "0.2em", zIndex: 2,
-                }}>{project.year}</span>
-                <img src={project.image} alt={project.title} style={{
-                    width: "100%", height: "100%", objectFit: "cover", display: "block",
-                    opacity: hov ? 0.85 : 0.5,
-                    filter: hov ? "grayscale(0%)" : "grayscale(25%)",
-                    transform: hov ? "scale(1.04)" : "scale(1)",
-                    transition: "opacity 0.55s ease, filter 0.55s ease, transform 0.65s cubic-bezier(0.16,1,0.3,1)",
-                }} />
-                <div style={{
-                    position: "absolute", inset: 0,
-                    background: "linear-gradient(135deg, rgba(13,13,13,0.5) 0%, transparent 60%)",
-                    pointerEvents: "none",
-                }} />
-                <div style={{
-                    position: "absolute", bottom: 0, left: 0, right: 0, height: "1px",
-                    background: `linear-gradient(90deg, ${project.accent}, ${project.accent}00)`,
-                    opacity: hov ? 1 : 0, transition: "opacity 0.4s ease",
-                }} />
-            </div>
+            {/* RIGHT — Image (desktop only) */}
+            {!isMobile && (
+                <div onClick={() => window.open(project.live, "_blank")} style={{ position: "relative", overflow: "hidden", background: "#080808", cursor: "pointer" }}>
+                    <span style={{
+                        position: "absolute", top: "1.4rem", right: "1.6rem",
+                        fontFamily: "'Bebas Neue', sans-serif", fontSize: "0.9rem",
+                        color: "#2a2a2a", letterSpacing: "0.2em", zIndex: 2,
+                    }}>{project.year}</span>
+                    <img src={project.image} alt={project.name} style={{
+                        width: "100%", height: "100%", objectFit: "cover", display: "block",
+                        opacity: hov ? 0.85 : 0.5,
+                        filter: hov ? "grayscale(0%)" : "grayscale(25%)",
+                        transform: hov ? "scale(1.04)" : "scale(1)",
+                        transition: "opacity 0.55s ease, filter 0.55s ease, transform 0.65s cubic-bezier(0.16,1,0.3,1)",
+                    }} />
+                    <div style={{
+                        position: "absolute", inset: 0,
+                        background: "linear-gradient(135deg, rgba(13,13,13,0.5) 0%, transparent 60%)",
+                        pointerEvents: "none",
+                    }} />
+                    <div style={{
+                        position: "absolute", bottom: 0, left: 0, right: 0, height: "1px",
+                        background: `linear-gradient(90deg, ${project.accent}, ${project.accent}00)`,
+                        opacity: hov ? 1 : 0, transition: "opacity 0.4s ease",
+                    }} />
+                </div>
+            )}
         </div>
     )
 }
 
-// ─── Stacking card — same component for ALL cards, isLast skips dim/scale ───
-function StackingCard({ project, index, isLast = false, setHovered, sectionRef }) {
+// ─── Stacking card ───────────────────────────────────────────────────────────
+function StackingCard({ project, index, isLast = false, setHovered, sectionRef, isMobile }) {
     const trackerRef = useRef(null)
     const containerRef = useRef(null)
     const [hov, setHov] = useState(false)
 
     useEffect(() => {
+        if (isMobile) return // Mobile pe stacking effect nahi
+
         const tracker = trackerRef.current
         const container = containerRef.current
         if (!tracker || !container) return
@@ -188,7 +217,6 @@ function StackingCard({ project, index, isLast = false, setHovered, sectionRef }
 
             if (card) {
                 if (isLast) {
-                    // Last card — never dim, never scale down, always bright
                     card.style.transform = "scale(1)"
                     card.style.filter = "brightness(1)"
                 } else {
@@ -208,13 +236,22 @@ function StackingCard({ project, index, isLast = false, setHovered, sectionRef }
         const loop = () => { update(); raf = requestAnimationFrame(loop) }
         raf = requestAnimationFrame(loop)
         return () => cancelAnimationFrame(raf)
-    }, [])
+    }, [isMobile])
+
+    if (isMobile) {
+        // Mobile: simple vertical stack, no sticky scroll effect
+        return (
+            <div style={{ marginBottom: "1.5rem" }}>
+                <CardInner project={project} hov={false} setHov={setHov} setHovered={setHovered} isMobile={true} />
+            </div>
+        )
+    }
 
     return (
         <>
             <div ref={trackerRef} style={{ height: 0, margin: 0, padding: 0 }} />
             <div ref={containerRef} style={{ position: "relative", zIndex: 10 + index, willChange: "transform" }}>
-                <CardInner project={project} hov={hov} setHov={setHov} setHovered={setHovered} />
+                <CardInner project={project} hov={hov} setHov={setHov} setHovered={setHovered} isMobile={false} />
             </div>
             <div style={{ height: `${CARD_SCROLL_DISTANCE}px` }} />
         </>
@@ -228,6 +265,14 @@ export default function Projects({ setHovered, currentYRef }) {
     const labelRef = useRef(null)
     const [inView, setInView] = useState(false)
     const inViewRef = useRef(false)
+    const [isMobile, setIsMobile] = useState(false)
+
+    useEffect(() => {
+        const check = () => setIsMobile(window.innerWidth <= 768)
+        check()
+        window.addEventListener("resize", check)
+        return () => window.removeEventListener("resize", check)
+    }, [])
 
     const dimTargets = useMemo(() => [
         { ref: labelRef, type: "yellow" },
@@ -255,14 +300,15 @@ export default function Projects({ setHovered, currentYRef }) {
         <section
             id="work"
             ref={sectionRef}
-            style={{ background: "#0d0d0d", padding: "4rem 2rem", position: "relative" }}
+            style={{ background: "#0d0d0d", padding: isMobile ? "3rem 1rem" : "4rem 2rem", position: "relative" }}
         >
-            <ParticleCanvas count={60} />
+            <ParticleCanvas count={isMobile ? 25 : 60} />
 
             {/* Top divider */}
             <div style={{
-                width: inView ? "calc(100% - 6rem)" : "0%",
-                marginLeft: "6rem", height: "1px",
+                width: inView ? (isMobile ? "calc(100% - 2rem)" : "calc(100% - 6rem)") : "0%",
+                marginLeft: isMobile ? "1rem" : "6rem",
+                height: "1px",
                 background: "linear-gradient(90deg, #e8d44d, #e8d44d33, transparent)",
                 marginBottom: "3rem",
                 transition: "width 1s cubic-bezier(0.16, 1, 0.3, 1)",
@@ -270,9 +316,11 @@ export default function Projects({ setHovered, currentYRef }) {
 
             {/* Section label */}
             <div ref={labelRef} style={{
-                fontSize: "2rem", fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: isMobile ? "1.4rem" : "2rem",
+                fontFamily: "'Bebas Neue', sans-serif",
                 letterSpacing: "0.3em", color: "#e8d44d",
-                marginBottom: "1rem", marginLeft: "6rem",
+                marginBottom: "1rem",
+                marginLeft: isMobile ? "1rem" : "6rem",
                 opacity: inView ? 1 : 0,
                 transform: inView ? "translateY(0)" : "translateY(20px)",
                 transition: "opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1)",
@@ -281,13 +329,14 @@ export default function Projects({ setHovered, currentYRef }) {
             {/* Heading */}
             <h2
                 ref={headerRef}
-                onMouseEnter={() => setHovered(true)}
-                onMouseLeave={() => setHovered(false)}
+                onMouseEnter={() => !isMobile && setHovered(true)}
+                onMouseLeave={() => !isMobile && setHovered(false)}
                 style={{
                     fontFamily: "'Bebas Neue', sans-serif",
-                    fontSize: "clamp(3rem, 6vw, 4.5rem)",
+                    fontSize: isMobile ? "clamp(2rem, 8vw, 3rem)" : "clamp(3rem, 6vw, 4.5rem)",
                     color: "#3a3a3a", letterSpacing: "0.08em",
-                    margin: "0 0 8rem 6rem", lineHeight: 1,
+                    margin: isMobile ? "0 0 2.5rem 1rem" : "0 0 8rem 6rem",
+                    lineHeight: 1,
                     cursor: "auto", userSelect: "none",
                     position: "relative", zIndex: 9999,
                     opacity: inView ? 1 : 0,
@@ -297,16 +346,16 @@ export default function Projects({ setHovered, currentYRef }) {
                 }}
             >SELECTED PROJECTS</h2>
 
-            {/* All cards — same component, last one gets isLast=true */}
             <div style={{ display: "flex", flexDirection: "column" }}>
                 {projects.map((project, i) => (
                     <StackingCard
-                        key={project.number}
+                        key={project.name}
                         project={project}
                         index={i}
                         isLast={i === projects.length - 1}
                         setHovered={setHovered}
                         sectionRef={sectionRef}
+                        isMobile={isMobile}
                     />
                 ))}
             </div>
