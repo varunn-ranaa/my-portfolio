@@ -27,7 +27,7 @@ const projects = [
         year: "2025",
         github: "https://github.com/varunn-ranaa/BookMyStay",
         accent: "#e8d44d",
-        live: "#",
+        live: "https://bookmystay-dsg9.onrender.com",
         image: "./BOS.png",
     },
 ]
