@@ -9,7 +9,7 @@ const projects = [
         year: "2026",
         github: "https://github.com/varunn-ranaa/Voxa-video-conferencing",
         accent: "#e8d44d",
-        live: "https://voxa-video-conferencing.onrender.com/",
+        live: "https://voxa-video-conferencing.onrender.com",
         image: "./Voxa.png",
     },
     {
