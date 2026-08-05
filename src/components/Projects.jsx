@@ -30,6 +30,15 @@ const projects = [
         live: "https://bookmystay-dsg9.onrender.com",
         image: "./BOS.png",
     },
+    {
+        name: "BlogX",
+        subtitle: "Post Here",
+        year: "2026",
+        github: "https://github.com/varunn-ranaa/Blog-X",
+        accent: "#e8d44d",
+        live: "https://blog-x-olive.vercel.app/",
+        image: "./BOS.png",
+    }
 ]
 
 const CARD_SCROLL_DISTANCE = 600
