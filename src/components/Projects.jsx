@@ -37,7 +37,7 @@ const projects = [
         github: "https://github.com/varunn-ranaa/Blog-X",
         accent: "#e8d44d",
         live: "https://blog-x-olive.vercel.app/",
-        image: "./BOS.png",
+        image: "./blog.png",
     }
 ]
 
