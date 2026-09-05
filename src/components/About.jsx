@@ -132,9 +132,8 @@ export default function About({ setHovered, currentYRef }) {
                     transition: "opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)",
                     transitionDelay: "0.45s",
                 }}>
-                   Full-Stack Developer dedicated to building robust, scalable ecosystems with the MERN stack.
-                    I am currently bridging the gap between web development and Machine Learning to create smarter,
-                     more efficient digital products.
+                   Full-Stack Developer focused on building robust and scalable applications with the MERN stack.
+                   Currently exploring DevOps and cloud technologies to build, deploy, and maintain reliable, automated, and production-ready systems.
                 </p>
 
                 {/* Education Card */}
@@ -222,7 +221,7 @@ export default function About({ setHovered, currentYRef }) {
                             <div style={{ fontSize: "0.6rem", color: "#555", letterSpacing: "0.2em", marginBottom: "2px" }}>GRAD</div>
                             <div ref={gradYearRef} style={{ fontSize: "1.1rem", fontWeight: 700, color: "#e8d44d", letterSpacing: "0.05em" }}>'27</div>
                             <div style={{ marginTop: "1.2rem", display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-                                {["MERN STACK", "AI / ML"].map((label) => (
+                                {["MERN STACK"].map((label) => (
                                     <div key={label} style={{
                                         display: "flex", alignItems: "center", gap: "0.5rem",
                                         background: "#111", border: "1px solid #222",
