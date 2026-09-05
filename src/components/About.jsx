@@ -132,8 +132,8 @@ export default function About({ setHovered, currentYRef }) {
                     transition: "opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)",
                     transitionDelay: "0.45s",
                 }}>
-                   Full-Stack Developer focused on building robust and scalable applications with the MERN stack.
-                   Currently exploring DevOps and cloud technologies to build, deploy, and maintain reliable, automated, and production-ready systems.
+                  Full-Stack Developer passionate about building scalable and production-ready applications.
+                  Currently expanding my expertise across AI, RAG, agentic workflows, and DevOps while exploring modern technologies to solve real-world problems and build better digital products.
                 </p>
 
                 {/* Education Card */}
