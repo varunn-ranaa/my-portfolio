@@ -3,10 +3,11 @@ import useScrollDim from "../hooks/useScrollDim"
 import ParticleCanvas from "./ParticleCanvas"
 
 const skillGroups = [
-    { category: "Frontend", items: ["React", "HTML", "CSS", "JavaScript"] },
-    { category: "Backend", items: ["Node.js", "Express", "REST APIs", "MongoDB", "PostgreSQl", "WebRTC"] },
+    { category: "Frontend", items: ["HTML", "CSS", "JavaScript", "React", "TypeScript", "Next.js"] },
+    { category: "Backend", items: ["Node.js", "Express","WebRTC", "JWT", "OAuth 2.0", "Appwrite","Supabase"] },
+    {category: "Databases", items: ["MongoDB", "PostgreSQL", "MySQL"]},
     { category: "AI / ML", items: ["Python", "scikit-learn", "NumPy", "Pandas"] },
-    { category: "Tools", items: ["Git", "GitHub", "VS Code", "Postman", "Docker"] },
+    { category: "Tools", items: ["Git", "GitHub", "VS Code", "Postman", "Docker", "AWS", "CI/CD"] },
 ]
 
 function useInView(threshold = 0.1) {
