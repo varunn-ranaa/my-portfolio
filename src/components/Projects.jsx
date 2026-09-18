@@ -11,7 +11,7 @@ const projects = [
         accent: "#e8d44d",
         live: "https://unfiltered-txt.vercel.app/",
         image: "./Utxt.png",
-    }
+    },
     {
         name: "Voxa",
         subtitle: "Video Conferencing Platform",
