@@ -4,6 +4,15 @@ import ParticleCanvas from "./ParticleCanvas"
 
 const projects = [
     {
+        name: "Unfiltered.txt",
+        subtitle: "Anonymous Text Platform",
+        year: "2026",
+        github: "https://github.com/varunn-ranaa/unfiltered.txt",
+        accent: "#e8d44d",
+        live: "https://unfiltered-txt.vercel.app/",
+        image: "./Utxt.png",
+    }
+    {
         name: "Voxa",
         subtitle: "Video Conferencing Platform",
         year: "2026",
