@@ -71,18 +71,22 @@ export default function Contact({ setHovered, currentYRef }) {
 
             <ParticleCanvas count={isMobile ? 25 : 60} />
 
-            {/* Faint BG text */}
+            {/* Faint BG text — only `right` is set now (no more conflicting `left`),
+                so the box sizes naturally to the text instead of being squeezed
+                between two competing edges. Smaller + closer offset on mobile so
+                it doesn't overflow the section. */}
             <div style={{
                 position: "absolute",
-                bottom: "-3rem", right: "-1rem",
+                bottom: isMobile ? "-0.5rem" : "-3rem",
+                right: isMobile ? "-0.25rem" : "-1rem",
                 fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: "clamp(5rem, 16vw, 14rem)",
+                fontSize: isMobile ? "clamp(3rem, 22vw, 5rem)" : "clamp(5rem, 16vw, 14rem)",
                 color: "#ffffff04",
                 letterSpacing: "0.05em",
                 lineHeight: 1,
                 userSelect: "none",
                 pointerEvents: "none",
-                left: "50%"
+                whiteSpace: "nowrap",
             }}>
                 CONNECT
             </div>
@@ -96,7 +100,7 @@ export default function Contact({ setHovered, currentYRef }) {
                 alignItems: "center",
             }}>
 
-                {/* LEFT — Photo (hidden on mobile or shown smaller) */}
+                {/* Photo — desktop only now. Removed the mobile version entirely. */}
                 {!isMobile && (
                     <div style={{
                         opacity: inView ? 1 : 0,
@@ -146,37 +150,6 @@ export default function Contact({ setHovered, currentYRef }) {
 
                 {/* RIGHT — Info */}
                 <div>
-                    {/* Mobile: small photo at top */}
-                    {isMobile && (
-                        <div style={{
-                            marginBottom: "2rem",
-                            opacity: inView ? 1 : 0,
-                            transition: "opacity 0.9s ease",
-                            transitionDelay: "0.1s",
-                        }}>
-                            <div style={{
-                                position: "relative",
-                                width: "100px",
-                                height: "100px",
-                                borderRadius: "12px",
-                                overflow: "hidden",
-                                border: "1px solid #1e1e1e",
-                            }}>
-                                <img src="/me.jpeg" alt="Varun Rana" style={{
-                                    width: "100%", height: "100%", objectFit: "cover", display: "block",
-                                }} />
-                                <div style={{
-                                    position: "absolute", top: 0, left: 0,
-                                    width: "24px", height: "2px", background: "#e8d44d",
-                                }} />
-                                <div style={{
-                                    position: "absolute", top: 0, left: 0,
-                                    width: "2px", height: "24px", background: "#e8d44d",
-                                }} />
-                            </div>
-                        </div>
-                    )}
-
                     {/* Label */}
                     <div
                         ref={labelRef}
