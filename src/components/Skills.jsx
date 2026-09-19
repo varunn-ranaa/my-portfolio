@@ -1,14 +1,59 @@
 import { useEffect, useRef, useState, useMemo } from "react"
 import useScrollDim from "../hooks/useScrollDim"
 import ParticleCanvas from "./ParticleCanvas"
+// Namespace imports: pulls in every icon from each set as an object instead
+// of naming each one individually. If a specific icon name doesn't exist in
+// the installed version, ICONS["ThatName"] is just `undefined` -- it does
+// NOT crash the build the way a missing named import does.
+import * as SiIcons from "react-icons/si"
+import * as FaIcons from "react-icons/fa"
 
-const skillGroups = [
-    { category: "Frontend", items: ["HTML", "CSS", "JavaScript", "React", "TypeScript", "Next.js"] },
-    { category: "Backend", items: ["Node.js", "Express","WebRTC", "JWT", "OAuth 2.0", "Appwrite","Supabase"] },
-    {category: "Databases", items: ["MongoDB", "PostgreSQL", "MySQL"]},
-    { category: "AI / ML", items: ["Python", "scikit-learn", "NumPy", "Pandas"] },
-    { category: "Tools", items: ["Git", "GitHub", "VS Code", "Postman", "Docker", "AWS", "CI/CD"] },
+// Merged lookup table across both icon sets (Simple Icons brand logos +
+// Font Awesome as a fallback/generic set for things with no brand logo,
+// like OAuth, or where a Si export name has changed between versions).
+const ICONS = { ...SiIcons, ...FaIcons }
+
+function getIcon(...candidateNames) {
+    for (const n of candidateNames) {
+        if (ICONS[n]) return ICONS[n]
+    }
+    return null
+}
+
+// Single source of truth: every skill, its category (matches the filter tabs),
+// its icon (resolved safely via getIcon, checking multiple candidate names)
+// and its brand/accent color.
+const SKILLS = [
+    { name: "HTML", category: "FRONTEND", icon: getIcon("SiHtml5", "FaHtml5"), color: "#e34f26" },
+    { name: "CSS", category: "FRONTEND", icon: getIcon("SiCss3", "FaCss3", "FaCss3Alt"), color: "#1572b6" },
+    { name: "JavaScript", category: "FRONTEND", icon: getIcon("SiJavascript", "FaJs"), color: "#f7df1e" },
+    { name: "React", category: "FRONTEND", icon: getIcon("SiReact", "FaReact"), color: "#61dafb" },
+    { name: "TypeScript", category: "FRONTEND", icon: getIcon("SiTypescript"), color: "#3178c6" },
+    { name: "Next.js", category: "FRONTEND", icon: getIcon("SiNextdotjs"), color: "#ffffff" },
+
+    { name: "Node.js", category: "BACKEND", icon: getIcon("SiNodedotjs", "FaNodeJs"), color: "#5fa04e" },
+    { name: "Express", category: "BACKEND", icon: getIcon("SiExpress"), color: "#ffffff" },
+    { name: "WebRTC", category: "BACKEND", icon: getIcon("SiWebrtc"), color: "#ff8300" },
+    { name: "JWT", category: "BACKEND", icon: getIcon("SiJsonwebtokens", "FaKey"), color: "#d63aff" },
+    { name: "OAuth 2.0", category: "BACKEND", icon: getIcon("FaKey", "FaLock", "FaUserLock"), color: "#e8d44d" },
+    { name: "NextAuth.js", category: "BACKEND", icon: getIcon("FaShieldAlt", "FaUserShield", "FaShield"), color: "#844fba" },
+    { name: "Appwrite", category: "BACKEND", icon: getIcon("SiAppwrite"), color: "#fd366e" },
+    { name: "Supabase", category: "BACKEND", icon: getIcon("SiSupabase"), color: "#3ecf8e" },
+
+    { name: "MongoDB", category: "DATABASE", icon: getIcon("SiMongodb", "FaDatabase"), color: "#47a248" },
+    { name: "PostgreSQL", category: "DATABASE", icon: getIcon("SiPostgresql"), color: "#4169e1" },
+    { name: "MySQL", category: "DATABASE", icon: getIcon("SiMysql"), color: "#4479a1" },
+    { name: "Redis", category: "DATABASE", icon: getIcon("SiRedis"), color: "#dc382d" },
+
+    { name: "Git", category: "DEVOPS/TOOLS", icon: getIcon("SiGit", "FaGitAlt"), color: "#f05032" },
+    { name: "GitHub", category: "DEVOPS/TOOLS", icon: getIcon("SiGithub", "FaGithub"), color: "#ffffff" },
+    { name: "VS Code", category: "DEVOPS/TOOLS", icon: getIcon("SiVisualstudiocode", "SiVsco", "SiVscodium"), color: "#007acc" },
+    { name: "Postman", category: "DEVOPS/TOOLS", icon: getIcon("SiPostman"), color: "#ff6c37" },
+    { name: "Docker", category: "DEVOPS/TOOLS", icon: getIcon("SiDocker", "FaDocker"), color: "#2496ed" },
+    { name: "AWS", category: "DEVOPS/TOOLS", icon: getIcon("SiAmazonaws", "SiAmazonwebservices", "FaAws"), color: "#ff9900" },
 ]
+
+const TABS = ["FRONTEND", "BACKEND", "DATABASE", "DEVOPS/TOOLS"]
 
 function useInView(threshold = 0.1) {
     const ref = useRef(null)
@@ -24,178 +69,88 @@ function useInView(threshold = 0.1) {
     return [ref, inView]
 }
 
-function SkillPill({ name, delay, inView }) {
-    const outerRef = useRef(null)
-    const [dims, setDims] = useState({ w: 0, h: 0 })
+function SkillCard({ skill, index, isMobile }) {
     const [hovered, setHovered] = useState(false)
-
-    useEffect(() => {
-        if (!outerRef.current) return
-        const id = setTimeout(() => {
-            const el = outerRef.current
-            if (!el) return
-            setDims({ w: el.offsetWidth, h: el.offsetHeight })
-        }, 50)
-        const ro = new ResizeObserver(() => {
-            const el = outerRef.current
-            if (!el) return
-            setDims({ w: el.offsetWidth, h: el.offsetHeight })
-        })
-        ro.observe(outerRef.current)
-        return () => { clearTimeout(id); ro.disconnect() }
-    }, [inView])
-
-    const { w, h } = dims
-    const r = h / 2
-
-    const pillPath = w > 0 && h > 0
-        ? `M ${r} 0 H ${w - r} A ${r} ${r} 0 0 1 ${w - r} ${h} H ${r} A ${r} ${r} 0 0 1 ${r} 0 Z`
-        : ""
-
-    const gradId = `trail-${name.replace(/[^a-z0-9]/gi, "")}`
+    const Icon = skill.icon
 
     return (
         <div
-            ref={outerRef}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
+            onMouseEnter={() => !isMobile && setHovered(true)}
+            onMouseLeave={() => !isMobile && setHovered(false)}
+            onClick={() => isMobile && setHovered(prev => !prev)}
             style={{
                 position: "relative",
-                display: "inline-flex",
+                background: "#111",
+                border: hovered ? "1px solid #e8d44d66" : "1px solid #222",
+                borderRadius: "14px",
+                padding: isMobile ? "1.2rem 0.75rem" : "1.75rem 1.25rem",
+                display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
-                gap: "0.6rem",
-                padding: "0.55rem 1.2rem",
-                borderRadius: "999px",
-                background: hovered ? "rgba(232,212,77,0.10)" : "rgba(255,255,255,0.03)",
-                border: hovered ? "1px solid rgba(232,212,77,0.45)" : "1px solid rgba(255,255,255,0.08)",
-                boxShadow: hovered
-                    ? "0 0 18px rgba(232,212,77,0.20), inset 0 0 8px rgba(232,212,77,0.10)"
-                    : "none",
-                color: hovered ? "#e8d44d" : "#aaa",
-                fontFamily: "'Bebas Neue', sans-serif",
-                letterSpacing: "0.10em",
-                fontSize: "0.9rem",
-                whiteSpace: "nowrap",
-                cursor: "default",
-                opacity: inView ? 1 : 0,
-                transform: inView ? "translateY(0)" : "translateY(18px)",
-                transition: `
-                    opacity 0.5s ease ${delay}s,
-                    transform 0.5s ease ${delay}s,
-                    background 0.3s ease,
-                    border 0.3s ease,
-                    box-shadow 0.3s ease,
-                    color 0.3s ease
-                `,
+                gap: "0.9rem",
+                cursor: isMobile ? "pointer" : "default",
+                boxShadow: hovered ? "0 0 24px rgba(232,212,77,0.15)" : "none",
+                transform: hovered ? "translateY(-4px)" : "translateY(0)",
+                transition: "border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.4s ease",
+                opacity: 0,
+                animation: `fadeInUp 0.5s ease ${index * 0.04}s forwards`,
             }}
         >
-            {pillPath && (
-                <svg
-                    style={{
-                        position: "absolute",
-                        top: 0, left: 0,
-                        width: `${w}px`,
-                        height: `${h}px`,
-                        pointerEvents: "none",
-                        overflow: "visible",
-                    }}
-                    viewBox={`0 0 ${w} ${h}`}
-                >
-                    <defs>
-                        <linearGradient id={gradId} gradientUnits="userSpaceOnUse"
-                            x1="0" y1="0" x2={w} y2="0">
-                            <stop offset="0%" stopColor="#e8d44d" stopOpacity="1" />
-                            <stop offset="55%" stopColor="#e8d44d" stopOpacity="0.4" />
-                            <stop offset="100%" stopColor="#e8d44d" stopOpacity="0" />
-                        </linearGradient>
-                    </defs>
-                    <path d={pillPath} fill="none" stroke="#1f1f1f" strokeWidth="1" />
-                    <path
-                        d={pillPath}
-                        fill="none"
-                        stroke={`url(#${gradId})`}
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        pathLength="100"
-                        strokeDasharray={hovered ? "100 0" : "35 65"}
-                        style={{
-                            filter: hovered ? "drop-shadow(0 0 5px #e8d44d)" : "none",
-                            animation: "orbitTrail 2.5s linear infinite",
-                            transition: "stroke-dasharray 0.4s ease, filter 0.3s ease",
-                        }}
-                    />
-                </svg>
+            {hovered && (
+                <div style={{
+                    position: "absolute",
+                    top: "10px",
+                    right: "10px",
+                    width: "7px",
+                    height: "7px",
+                    borderRadius: "50%",
+                    background: "#e8d44d",
+                    boxShadow: "0 0 8px #e8d44d, 0 0 16px #e8d44d66",
+                }} />
             )}
 
-            <span style={{
-                flexShrink: 0,
-                width: hovered ? "7px" : "5px",
-                height: hovered ? "7px" : "5px",
-                borderRadius: "50%",
-                background: hovered ? "#e8d44d" : "#555",
-                boxShadow: hovered ? "0 0 8px #e8d44d, 0 0 16px #e8d44d66" : "none",
-                transition: "all 0.3s ease",
-            }} />
-
-            {name}
-
-            <style>{`
-                @keyframes orbitTrail {
-                    from { stroke-dashoffset: 0; }
-                    to   { stroke-dashoffset: -100; }
+            <div style={{
+                width: isMobile ? "48px" : "56px",
+                height: isMobile ? "48px" : "56px",
+                borderRadius: "12px",
+                background: "#1a1a1a",
+                border: "1px solid #2a2a2a",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: isMobile ? "1.4rem" : "1.7rem",
+                transition: "border-color 0.3s ease",
+                borderColor: hovered ? `${skill.color}55` : "#2a2a2a",
+            }}>
+                {Icon
+                    ? <Icon color={skill.color} size={isMobile ? 24 : 28} />
+                    : <span style={{
+                        fontFamily: "'Bebas Neue', sans-serif",
+                        fontSize: "0.75rem",
+                        color: skill.color,
+                        letterSpacing: "0.05em",
+                    }}>{skill.name.slice(0, 2).toUpperCase()}</span>
                 }
-            `}</style>
-        </div>
-    )
-}
-
-function SkillGroup({ group, gi, inView, currentYRef }) {
-    const [hovered, setHovered] = useState(false)
-    const catRef = useRef(null)
-
-    const dimTargets = useMemo(() => [
-        { ref: catRef, type: "yellow" }
-    ], [])
-    useScrollDim(dimTargets, currentYRef)
-
-    return (
-        <div
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-        >
-            <div
-                ref={catRef}
-                style={{
-                    fontSize: "1.2rem",
-                    fontFamily: "'Bebas Neue', sans-serif",
-                    letterSpacing: "0.28em",
-                    color: "#e8d44d",
-                    marginBottom: "1rem",
-                    opacity: inView ? 1 : 0,
-                    transform: inView ? "translateY(0)" : "translateY(12px)",
-                    transition: `opacity 0.6s ease ${0.15 + gi * 0.08}s, transform 0.6s ease ${0.15 + gi * 0.08}s`,
-                }}>
-                {group.category}
             </div>
 
             <div style={{
-                width: hovered ? "80px" : "32px",
-                height: "1px",
-                background: hovered ? "#e8d44d" : "#e8d44d33",
-                marginBottom: "1rem",
-                transition: "width 0.35s ease, background 0.35s ease",
-            }} />
-
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
-                {group.items.map((skill, si) => (
-                    <SkillPill
-                        key={skill}
-                        name={skill}
-                        inView={inView}
-                        delay={0.25 + gi * 0.08 + si * 0.06}
-                    />
-                ))}
+                fontFamily: "'Arial', sans-serif",
+                fontSize: isMobile ? "0.78rem" : "0.9rem",
+                fontWeight: 600,
+                color: hovered ? "#e8d44d" : "#ccc",
+                letterSpacing: "0.01em",
+                textAlign: "center",
+                transition: "color 0.3s ease",
+            }}>
+                {skill.name}
             </div>
+
+            <style>{`
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(14px); }
+                    to   { opacity: 1; transform: translateY(0); }
+                }
+            `}</style>
         </div>
     )
 }
@@ -205,6 +160,7 @@ export default function Skills({ setHovered, currentYRef }) {
     const labelRef = useRef(null)
     const headerRef = useRef(null)
     const [isMobile, setIsMobile] = useState(false)
+    const [activeTab, setActiveTab] = useState("FRONTEND")
 
     useEffect(() => {
         const check = () => setIsMobile(window.innerWidth <= 768)
@@ -219,18 +175,21 @@ export default function Skills({ setHovered, currentYRef }) {
     ], [])
     useScrollDim(dimTargets, currentYRef)
 
+    const filteredSkills = SKILLS.filter(s => s.category === activeTab)
+
     return (
         <section
             id="skills"
             ref={ref}
             style={{
                 background: "#0d0d0d",
-                padding: isMobile ? "3rem 1.5rem" : "4rem 8rem",
+                padding: isMobile ? "3rem 1.25rem" : "4rem 8rem",
                 position: "relative",
                 overflow: "hidden",
             }}
         >
             <ParticleCanvas count={isMobile ? 25 : 60} />
+
             <div style={{
                 width: inView ? "100%" : "0%",
                 height: "1px",
@@ -239,18 +198,16 @@ export default function Skills({ setHovered, currentYRef }) {
                 transition: "width 1.2s cubic-bezier(0.16,1,0.3,1)",
             }} />
 
-            <div
-                ref={labelRef}
-                style={{
-                    fontSize: isMobile ? "1.4rem" : "2rem",
-                    fontFamily: "'Bebas Neue', sans-serif",
-                    letterSpacing: "0.3em",
-                    color: "#e8d44d",
-                    marginBottom: "1.5rem",
-                    opacity: inView ? 1 : 0,
-                    transform: inView ? "translateY(0)" : "translateY(20px)",
-                    transition: "opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)",
-                }}>
+            <div ref={labelRef} style={{
+                fontSize: isMobile ? "1.4rem" : "2rem",
+                fontFamily: "'Bebas Neue', sans-serif",
+                letterSpacing: "0.3em",
+                color: "#e8d44d",
+                marginBottom: "1.5rem",
+                opacity: inView ? 1 : 0,
+                transform: inView ? "translateY(0)" : "translateY(20px)",
+                transition: "opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}>
                 SKILLS
             </div>
 
@@ -263,7 +220,7 @@ export default function Skills({ setHovered, currentYRef }) {
                     fontSize: isMobile ? "clamp(2rem, 8vw, 3rem)" : "clamp(3rem, 6vw, 4.5rem)",
                     color: "#2e2e2e",
                     letterSpacing: "0.06em",
-                    marginBottom: "4rem",
+                    marginBottom: "2.5rem",
                     opacity: inView ? 1 : 0,
                     transform: inView ? "translateY(0)" : "translateY(24px)",
                     transition: "opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s",
@@ -274,20 +231,56 @@ export default function Skills({ setHovered, currentYRef }) {
                 WHAT I WORK WITH
             </h2>
 
+            {/* Category tabs */}
             <div style={{
-                display: "grid",
-                gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(auto-fit, minmax(220px, 1fr))",
-                gap: isMobile ? "2rem" : "3rem",
-                maxWidth: "900px",
+                display: "flex",
+                gap: "0.6rem",
+                marginBottom: "2.5rem",
+                overflowX: "auto",
+                paddingBottom: "0.4rem",
+                scrollbarWidth: "none",
             }}>
-                {skillGroups.map((group, gi) => (
-                    <SkillGroup
-                        key={group.category}
-                        group={group}
-                        gi={gi}
-                        inView={inView}
-                        currentYRef={currentYRef}
-                    />
+                {TABS.map(tab => {
+                    const active = activeTab === tab
+                    return (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            style={{
+                                flexShrink: 0,
+                                padding: isMobile ? "0.5rem 1rem" : "0.6rem 1.3rem",
+                                borderRadius: "999px",
+                                border: active ? "1px solid #e8d44d" : "1px solid #2a2a2a",
+                                background: active ? "#e8d44d" : "#111",
+                                color: active ? "#0d0d0d" : "#999",
+                                fontFamily: "'Bebas Neue', sans-serif",
+                                letterSpacing: "0.1em",
+                                fontSize: isMobile ? "0.75rem" : "0.85rem",
+                                cursor: isMobile ? "default" : "pointer",
+                                transition: "all 0.25s ease",
+                                whiteSpace: "nowrap",
+                            }}
+                        >
+                            {tab}
+                        </button>
+                    )
+                })}
+            </div>
+
+            {/* Skill cards */}
+            <div
+                key={activeTab}
+                style={{
+                    display: "grid",
+                    gridTemplateColumns: isMobile
+                        ? "repeat(2, 1fr)"
+                        : "repeat(auto-fill, minmax(150px, 1fr))",
+                    gap: isMobile ? "0.9rem" : "1.25rem",
+                    maxWidth: "1100px",
+                }}
+            >
+                {filteredSkills.map((skill, i) => (
+                    <SkillCard key={skill.name} skill={skill} index={i} isMobile={isMobile} />
                 ))}
             </div>
         </section>
