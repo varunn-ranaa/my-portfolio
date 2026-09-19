@@ -48,7 +48,7 @@ export default function About({ setHovered, currentYRef }) {
                 minHeight: "100vh",
                 display: "flex",
                 alignItems: "center",
-                padding: "4rem 8rem",
+                padding: "4rem clamp(1.25rem, 6vw, 8rem)",
                 position: "relative",
                 overflow: "hidden",
             }}
@@ -57,9 +57,9 @@ export default function About({ setHovered, currentYRef }) {
             <div style={{
                 position: "absolute",
                 top: "2rem",
-                left: "8rem",
-                right: "8rem",
-                width: inView ? "calc(100% - 16rem)" : "0%",
+                left: "clamp(1.25rem, 6vw, 8rem)",
+                right: "clamp(1.25rem, 6vw, 8rem)",
+                width: inView ? "auto" : "0%",
                 height: "1px",
                 background: "linear-gradient(90deg, #e8d44d, #e8d44d22, transparent)",
                 transition: "width 1s cubic-bezier(0.16, 1, 0.3, 1)",
@@ -74,8 +74,8 @@ export default function About({ setHovered, currentYRef }) {
                 style={{
                     position: "absolute",
                     top: "6rem",
-                    left: "8rem",
-                    fontSize: "2rem",
+                    left: "clamp(1.25rem, 6vw, 8rem)",
+                    fontSize: "clamp(1.3rem, 3vw, 2rem)",
                     fontFamily: "'Bebas Neue', sans-serif",
                     letterSpacing: "0.3em",
                 color: "#e8d44d",
